@@ -1,6 +1,3 @@
-// Copyright (c) 2018 Oğuz Sandıkçı
-// This code is licensed under MIT license (see LICENSE.txt for details)
-
 using System;
 using System.Reflection;
 using System.Collections.Generic;
@@ -11,7 +8,7 @@ namespace Bit34.DI.Reflection
     public class ReflectionCache
     {
 		//	MEMBERS
-		public readonly Type ReflectedType;
+		public readonly Type reflectedType;
 		public LinkedList<FieldInfo> Fields { get; private set; }
 		public LinkedList<PropertyInfo> Properties { get; private set; }
 
@@ -19,12 +16,12 @@ namespace Bit34.DI.Reflection
         //	CONSTRUCTOR
         public ReflectionCache(Type reflectedType)
 		{
-            ReflectedType = reflectedType;
+            this.reflectedType = reflectedType;
 			Fields = new LinkedList<FieldInfo> ();
 			Properties = new LinkedList<PropertyInfo> ();
-            
-            AddFields(ReflectedType);
-            AddProperties(ReflectedType);
+
+            AddFields(this.reflectedType);
+            AddProperties(this.reflectedType);
         }
 
 

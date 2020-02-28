@@ -1,6 +1,3 @@
-// Copyright (c) 2018 Oğuz Sandıkçı
-// This code is licensed under MIT license (see LICENSE.txt for details)
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,88 +6,86 @@ using Bit34.DI.Error;
 using Bit34.DI.Provider;
 using Bit34.DI.Reflection;
 
-
 namespace Bit34.DI
 {
     public class Injector : IInjectorTester, IInstanceProviderList, IMemberInjector
     {
         //  MEMBERS
-        public int BindingCount  { get{ return _Bindings.Count;  } }
-        public int ProviderCount { get{ return _Providers.Count; } }
-        public int ErrorCount    { get{ return _Errors.Count;    } }
-        private Dictionary<Type, InjectionBinding>  _Bindings;
-        private Dictionary<Type, IInstanceProvider> _Providers;
-        private Dictionary<Type, ReflectionCache>   _Reflections;
-        private Dictionary<Type, object>            _AssignableInstances;
-        private bool _ShouldThrowException;
-        private List<InjectionError> _Errors;
-        private string[] _ErrorMessages;
-        private bool _IsBindingCompleted;
+        public int BindingCount  { get{ return _bindings.Count;  } }
+        public int ProviderCount { get{ return _providers.Count; } }
+        public int ErrorCount    { get{ return _errors.Count;    } }
+        private Dictionary<Type, InjectionBinding>  _bindings;
+        private Dictionary<Type, IInstanceProvider> _providers;
+        private Dictionary<Type, ReflectionCache>   _reflections;
+        private Dictionary<Type, object>            _assignableInstances;
+        private bool _shouldThrowException;
+        private List<InjectionError> _errors;
+        private string[] _errorMessages;
+        private bool _isBindingCompleted;
 
 
-        //	CONSTRUCTOR
+        //	CONSTRUCTORS
         public Injector(bool shouldThrowException=false)
         {
-            _Bindings = new Dictionary<Type, InjectionBinding>();
-            _Providers = new Dictionary<Type, IInstanceProvider>();
-            _Reflections = new Dictionary<Type, ReflectionCache>();
-            _AssignableInstances = new Dictionary<Type, object>();
-            _ShouldThrowException = shouldThrowException;
-            _Errors = new List<InjectionError>();
-            _ErrorMessages = new string[Enum.GetValues(typeof(InjectionErrorType)).Length];
-            _ErrorMessages[(int)InjectionErrorType.AlreadyAddedBindingForType           ] = "Injection Error:Already added binding for type [{1}]\n{0}";
-            _ErrorMessages[(int)InjectionErrorType.AlreadyAddedTypeWithDifferentProvider] = "Injection Error:Requested provider with type [{2}] already added with a different provider\n[{0}]]";
-            _ErrorMessages[(int)InjectionErrorType.TypeNotAssignableToTarget            ] = "Injection Error:Given type [{2}] is not assignable to binding type [{1}]\n{0}";
-            _ErrorMessages[(int)InjectionErrorType.ValueNotAssignableToBindingType      ] = "Injection Error:Given value of type [{2}] is not assignable to binding type [{1}]\n{0}";
-            _ErrorMessages[(int)InjectionErrorType.CanNotFindBindingForType             ] = "Injection Error:Can not find binding for type [{1}]\n{0}";
-            _ErrorMessages[(int)InjectionErrorType.BindingAfterInjection                ] = "Injection Error:Can not add binding for type [{1}] after injecting\n{0}";
+            _bindings = new Dictionary<Type, InjectionBinding>();
+            _providers = new Dictionary<Type, IInstanceProvider>();
+            _reflections = new Dictionary<Type, ReflectionCache>();
+            _assignableInstances = new Dictionary<Type, object>();
+            _shouldThrowException = shouldThrowException;
+            _errors = new List<InjectionError>();
+            _errorMessages = new string[Enum.GetValues(typeof(InjectionErrorType)).Length];
+            _errorMessages[(int)InjectionErrorType.AlreadyAddedBindingForType           ] = "Injection Error:Already added binding for type [{1}]\n{0}";
+            _errorMessages[(int)InjectionErrorType.AlreadyAddedTypeWithDifferentProvider] = "Injection Error:Requested provider with type [{2}] already added with a different provider\n[{0}]]";
+            _errorMessages[(int)InjectionErrorType.TypeNotAssignableToTarget            ] = "Injection Error:Given type [{2}] is not assignable to binding type [{1}]\n{0}";
+            _errorMessages[(int)InjectionErrorType.ValueNotAssignableToBindingType      ] = "Injection Error:Given value of type [{2}] is not assignable to binding type [{1}]\n{0}";
+            _errorMessages[(int)InjectionErrorType.CanNotFindBindingForType             ] = "Injection Error:Can not find binding for type [{1}]\n{0}";
+            _errorMessages[(int)InjectionErrorType.BindingAfterInjection                ] = "Injection Error:Can not add binding for type [{1}] after injecting\n{0}";
         }
 
 
         //  METHODS
-        #region IInjectorTester implementations
+#region IInjectorTester implementations
 
         public bool HasBindingForType(Type type)
         {
-            return _Bindings.ContainsKey(type);
+            return _bindings.ContainsKey(type);
         }
 
-        #endregion
+#endregion
 
-        #region IInjector implementations
+#region IInjector implementations
 
         public IInstanceProviderSetter AddBinding<T>()
         {
             Type bindingType = typeof(T);
             InjectionBinding binding = null;
 
-            if(!_IsBindingCompleted)
+            if(!_isBindingCompleted)
             {
-
                 //  Check is there is an existing binding with given type
-                if(_Bindings.TryGetValue(bindingType,out binding))
+                if(_bindings.TryGetValue(bindingType,out binding))
                 {
                     //  Handler error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedBindingForType, bindingType, null, 1);
-                    if(_ShouldThrowException)
+                    if(_shouldThrowException)
                     {
-                        throw new InjectionException(error.Error,error.Message);
+                        throw new InjectionException(error.error,error.message);
                     }
                 }
                 else
                 {
                     //  Add binding
                     binding = new InjectionBinding(bindingType, this);
-                    _Bindings.Add(bindingType, binding);
+                    _bindings.Add(bindingType, binding);
                 }
             }
             else
             {
                 //  Handler error
                 InjectionError error = CreateError(InjectionErrorType.BindingAfterInjection, bindingType, null, 1);
-                if(_ShouldThrowException)
+                if(_shouldThrowException)
                 {
-                    throw new InjectionException(error.Error,error.Message);
+                    throw new InjectionException(error.error,error.message);
                 }
             }
 
@@ -99,12 +94,12 @@ namespace Bit34.DI
 
         public InjectionError GetError(int index)
         {
-            return _Errors[index];
+            return _errors[index];
         }
 
         public void InjectInto(object container, IMemberInjector injectionOverride = null)
         {
-            _IsBindingCompleted = true;
+            _isBindingCompleted = true;
             
             //  Get reflection container for object. Will be performed once per type
             ReflectionCache classReflection = GetReflection(container.GetType());
@@ -124,9 +119,9 @@ namespace Bit34.DI
                 {
                     //  Handler error
                     InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, fieldInfo.FieldType, null, 1);
-                    if(_ShouldThrowException)
+                    if(_shouldThrowException)
                     {
-                        throw new InjectionException(error.Error,error.Message);
+                        throw new InjectionException(error.error,error.message);
                     }
 
                     continue;
@@ -136,7 +131,6 @@ namespace Bit34.DI
             //  Inject into properties
             foreach (PropertyInfo propertyInfo in classReflection.Properties)
             {
-                
                 if(injectionOverride!=null && injectionOverride.InjectIntoProperty(propertyInfo, container))
                 {
                     continue;
@@ -149,9 +143,9 @@ namespace Bit34.DI
                 {
                     //  Handler error
                     InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, propertyInfo.PropertyType, null, 1);
-                    if(_ShouldThrowException)
+                    if(_shouldThrowException)
                     {
-                        throw new InjectionException(error.Error,error.Message);
+                        throw new InjectionException(error.error,error.message);
                     }
 
                     continue;
@@ -161,13 +155,13 @@ namespace Bit34.DI
 
         public T GetInstance<T>()
         {
-            _IsBindingCompleted = true;
+            _isBindingCompleted = true;
 
             Type bindingType = typeof(T);
 
             object value = null;
             InjectionBinding binding = null;
-            if (_Bindings.TryGetValue(bindingType, out binding) == true)
+            if (_bindings.TryGetValue(bindingType, out binding) == true)
             {
                 value = GetInstanceAndInit(binding.InstanceProvider);
             }
@@ -175,9 +169,9 @@ namespace Bit34.DI
             {
                 //  Handler error
                 InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, bindingType, null, 1);
-                if(_ShouldThrowException)
+                if(_shouldThrowException)
                 {
-                    throw new InjectionException(error.Error,error.Message);
+                    throw new InjectionException(error.error,error.message);
                 }
             }
 
@@ -186,18 +180,18 @@ namespace Bit34.DI
 
         public IEnumerator<T> GetAssignableInstances<T>()
         {
-            _IsBindingCompleted = true;
+            _isBindingCompleted = true;
 
             Type typeToAssign = typeof(T);
 
             HashSet<T> assignableInstances;
             object instances;
-            if(!_AssignableInstances.TryGetValue(typeToAssign, out instances))
+            if(!_assignableInstances.TryGetValue(typeToAssign, out instances))
             {
                 assignableInstances = new HashSet<T>();
-                _AssignableInstances.Add(typeToAssign, assignableInstances);
+                _assignableInstances.Add(typeToAssign, assignableInstances);
 
-                foreach(IInstanceProvider provider in _Providers.Values)
+                foreach(IInstanceProvider provider in _providers.Values)
                 {
                     if(typeToAssign.IsAssignableFrom(provider.InstanceType))
                     {
@@ -224,9 +218,9 @@ namespace Bit34.DI
             return assignableInstances.GetEnumerator();
         }
 
-        #endregion
+#endregion
 
-        #region IInstanceProviderList implementations
+#region IInstanceProviderList implementations
 
         public IInstanceProvider AddValueProvider(Type bindingType, object value)
         {
@@ -237,9 +231,9 @@ namespace Bit34.DI
             {
                 //  Handler error
                 InjectionError error = CreateError(InjectionErrorType.ValueNotAssignableToBindingType, bindingType, providerType, 2);
-                if(_ShouldThrowException)
+                if(_shouldThrowException)
                 {
-                    throw new InjectionException(error.Error,error.Message);
+                    throw new InjectionException(error.error,error.message);
                 }
 
                 return null;
@@ -247,23 +241,23 @@ namespace Bit34.DI
 
             //  Check if a provider with given type exist
             IInstanceProvider provider;
-            if(_Providers.TryGetValue(providerType, out provider))
+            if(_providers.TryGetValue(providerType, out provider))
             {
                 //  Check if existing provider is same with requested one
                 if(provider.GetType()!=typeof(SingleInstanceProvider))
                 {
                     //  Handler error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedTypeWithDifferentProvider, bindingType, providerType, 2);
-                    if(_ShouldThrowException)
+                    if(_shouldThrowException)
                     {
-                        throw new InjectionException(error.Error,error.Message);
+                        throw new InjectionException(error.error,error.message);
                     }
                 }
             }
             else
             {
                 provider = new SingleInstanceProvider(value);
-                _Providers.Add(providerType,provider);
+                _providers.Add(providerType,provider);
             }
 
             return provider;
@@ -278,9 +272,9 @@ namespace Bit34.DI
             {
                 //  Handler error
                 InjectionError error = CreateError(InjectionErrorType.TypeNotAssignableToTarget, bindingType, providerType, 2);
-                if(_ShouldThrowException)
+                if(_shouldThrowException)
                 {
-                    throw new InjectionException(error.Error,error.Message);
+                    throw new InjectionException(error.error,error.message);
                 }
 
                 return null;
@@ -288,36 +282,36 @@ namespace Bit34.DI
             
             //  Check if a provider with given type exist
             IInstanceProvider provider;
-            if(_Providers.TryGetValue(providerType, out provider))
+            if(_providers.TryGetValue(providerType, out provider))
             {
                 //  Check if existing provider is same with requested one
                 if(provider.GetType()!=typeof(NewInstanceProvider<T>))
                 {
                     //  Handler error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedTypeWithDifferentProvider, bindingType, providerType, 2);
-                    if(_ShouldThrowException)
+                    if(_shouldThrowException)
                     {
-                        throw new InjectionException(error.Error,error.Message);
+                        throw new InjectionException(error.error,error.message);
                     }
                 }
             }
             else
             {
                 provider = new NewInstanceProvider<T>();
-                _Providers.Add(providerType,provider);
+                _providers.Add(providerType,provider);
             }
 
             return provider;
         }
 
-        #endregion
+#endregion
         
-        #region IMemberInjector implementations
+#region IMemberInjector implementations
         
         public bool InjectIntoField(FieldInfo fieldInfo, object container)
         {
             InjectionBinding binding = null;
-            if (_Bindings.TryGetValue(fieldInfo.FieldType, out binding) == true)
+            if (_bindings.TryGetValue(fieldInfo.FieldType, out binding) == true)
             {
                 object value = GetInstanceAndInit(binding.InstanceProvider);
                 fieldInfo.SetValue(container, value);
@@ -329,7 +323,7 @@ namespace Bit34.DI
         public bool InjectIntoProperty(PropertyInfo propertyInfo, object container)
         {
             InjectionBinding binding = null;
-            if (_Bindings.TryGetValue(propertyInfo.PropertyType, out binding) == true)
+            if (_bindings.TryGetValue(propertyInfo.PropertyType, out binding) == true)
             {
                 object value = GetInstanceAndInit(binding.InstanceProvider);
                 propertyInfo.SetValue(container, value, null);
@@ -338,7 +332,7 @@ namespace Bit34.DI
             return false;
         }
         
-        #endregion
+#endregion
 
         private object GetInstanceAndInit(IInstanceProvider instanceProvider)
         {
@@ -360,11 +354,11 @@ namespace Bit34.DI
         {
             ReflectionCache reflection = null;
 
-            if (_Reflections.TryGetValue(type, out reflection) == false)
+            if (_reflections.TryGetValue(type, out reflection) == false)
             {
                 reflection = new ReflectionCache(type);
 
-                _Reflections[type] = reflection;
+                _reflections[type] = reflection;
             }
 
             return reflection;
@@ -376,10 +370,10 @@ namespace Bit34.DI
             string bindingTypeAsString = (bindingType!=null)?(bindingType.ToString()):("");
             string providerTypeAsString = (providerType!=null)?(providerType.ToString()):("");
             object[] args = new object[]{ callerInfo, bindingTypeAsString, providerTypeAsString};
-            string errorMessage = String.Format(_ErrorMessages[(int)errorType], args);
+            string errorMessage = String.Format(_errorMessages[(int)errorType], args);
 
             InjectionError error = new InjectionError(errorType,errorMessage);
-            _Errors.Add(error);
+            _errors.Add(error);
 
             return error;
         }

@@ -1,11 +1,7 @@
-// Copyright (c) 2018 Oğuz Sandıkçı
-// This code is licensed under MIT license (see LICENSE.txt for details)
-
 using System;
 using System.Collections.Generic;
 using Bit34.DI.Error;
 using Bit34.DI.Provider;
-
 
 namespace Bit34.DI
 {
@@ -13,7 +9,6 @@ namespace Bit34.DI
     {
         //  MEMBERS
         int ErrorCount{get;}
-
 
         //  METHODS
         IInstanceProviderSetter AddBinding<T>();

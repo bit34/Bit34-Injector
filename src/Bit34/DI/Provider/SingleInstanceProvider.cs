@@ -1,25 +1,21 @@
-// Copyright (c) 2018 Oğuz Sandıkçı
-// This code is licensed under MIT license (see LICENSE.txt for details)
-
 using System;
-
 
 namespace Bit34.DI.Provider
 {
     public class SingleInstanceProvider : IInstanceProvider
     {
         //  MEMBERS
-        public Type InstanceType { get{ return _Instance.GetType(); } }
+        public Type InstanceType { get{ return _instance.GetType(); } }
         public Action<object> PostInjectionCallback{get; private set;}
-        private object _Instance;
-        private bool _IsNew;
+        private object _instance;
+        private bool _isNew;
 
 
         //  CONSTRUCTOR
         public SingleInstanceProvider( object instance)
         {
-            _Instance = instance;
-            _IsNew = true;
+            _instance = instance;
+            _isNew = true;
         }
 
 
@@ -31,9 +27,9 @@ namespace Bit34.DI.Provider
         
         public void GetInstance(out object instance, out bool isNew)
         {
-            instance = _Instance;
-            isNew = _IsNew;
-            _IsNew = false;
+            instance = _instance;
+            isNew = _isNew;
+            _isNew = false;
         }
     }
 }

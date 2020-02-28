@@ -1,8 +1,4 @@
-// Copyright (c) 2018 Oğuz Sandıkçı
-// This code is licensed under MIT license (see LICENSE.txt for details)
-
 using System;
-
 
 namespace Bit34.DI.Provider
 {
@@ -11,13 +7,10 @@ namespace Bit34.DI.Provider
         //	MEMBERS
         public Type InstanceType { get{ return typeof(T); } }
         public Action<object> PostInjectionCallback{get; private set;}
-        private object _Instance;
-
+        private object _instance;
 
         //  CONSTRUCTOR
-        public NewInstanceProvider()
-        {}
-
+        public NewInstanceProvider(){}
 
         //  METHODS
         public void SetPostInjectionCallback(Action<object> postInjectionCallback)
@@ -27,16 +20,16 @@ namespace Bit34.DI.Provider
         
         public void GetInstance(out object value, out bool isNew)
         {
-            if(_Instance==null)
+            if(_instance==null)
             {
-                _Instance = new T();
+                _instance = new T();
                 isNew = true;
             }
             else
             {
                 isNew = false;
             }
-            value = _Instance;
+            value = _instance;
         }
     }
 }
