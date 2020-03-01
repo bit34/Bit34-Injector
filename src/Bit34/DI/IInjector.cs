@@ -11,7 +11,7 @@ namespace Bit34.DI
         int ErrorCount{get;}
 
         //  METHODS
-        IInstanceProviderSetter AddBinding<T>();
+        IInstanceProviderSetter<T> AddBinding<T>();
         bool HasBindingForType(Type type);
         InjectionError GetError(int index);
         void InjectInto(object container, IMemberInjector injectionOverride = null);

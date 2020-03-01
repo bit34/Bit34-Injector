@@ -3,7 +3,7 @@ using Bit34.DI.Provider;
 
 namespace Bit34.DI
 {
-    public class InjectionBinding : IInstanceProviderSetter
+    public class InjectionBinding<TBinding> : IInjectionBinding, IInstanceProviderSetter<TBinding>
     {
         //	MEMBERS
         public readonly Type bindingType;
@@ -12,22 +12,23 @@ namespace Bit34.DI
     
 
         //	CONSTRUCTOR
-        public InjectionBinding(Type targetType, IInstanceProviderList instanceProviderList)
+        public InjectionBinding(IInstanceProviderList instanceProviderList)
         {
-            bindingType = targetType;
+            bindingType = typeof(TBinding);
             _instanceProviderList = instanceProviderList;
         }
 
         //  METHODS
-        public IInstanceProviderOptions ToValue(object value)
+        public IInstanceProviderOptions ToValue(TBinding value)
         {
             InstanceProvider = _instanceProviderList.AddValueProvider(bindingType, value);
             return InstanceProvider;
         }
 
-        public IInstanceProviderOptions ToType<T>() where T : new()
+        public IInstanceProviderOptions ToType<TProvider>()
+         where TProvider : TBinding, new()
         {
-            InstanceProvider = _instanceProviderList.AddTypedProvider<T>(bindingType);
+            InstanceProvider = _instanceProviderList.AddTypedProvider<TProvider>(bindingType);
             return InstanceProvider;
         }
     }

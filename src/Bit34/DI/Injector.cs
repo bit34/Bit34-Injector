@@ -14,7 +14,7 @@ namespace Bit34.DI
         public int BindingCount  { get{ return _bindings.Count;  } }
         public int ProviderCount { get{ return _providers.Count; } }
         public int ErrorCount    { get{ return _errors.Count;    } }
-        private Dictionary<Type, InjectionBinding>  _bindings;
+        private Dictionary<Type, IInjectionBinding>  _bindings;
         private Dictionary<Type, IInstanceProvider> _providers;
         private Dictionary<Type, ReflectionCache>   _reflections;
         private Dictionary<Type, object>            _assignableInstances;
@@ -23,11 +23,10 @@ namespace Bit34.DI
         private string[] _errorMessages;
         private bool _isBindingCompleted;
 
-
         //	CONSTRUCTORS
         public Injector(bool shouldThrowException=false)
         {
-            _bindings = new Dictionary<Type, InjectionBinding>();
+            _bindings = new Dictionary<Type, IInjectionBinding>();
             _providers = new Dictionary<Type, IInstanceProvider>();
             _reflections = new Dictionary<Type, ReflectionCache>();
             _assignableInstances = new Dictionary<Type, object>();
@@ -42,23 +41,13 @@ namespace Bit34.DI
             _errorMessages[(int)InjectionErrorType.BindingAfterInjection                ] = "Injection Error:Can not add binding for type [{1}] after injecting\n{0}";
         }
 
-
         //  METHODS
-#region IInjectorTester implementations
-
-        public bool HasBindingForType(Type type)
-        {
-            return _bindings.ContainsKey(type);
-        }
-
-#endregion
-
 #region IInjector implementations
 
-        public IInstanceProviderSetter AddBinding<T>()
+        public IInstanceProviderSetter<T> AddBinding<T>()
         {
             Type bindingType = typeof(T);
-            InjectionBinding binding = null;
+            IInjectionBinding binding = null;
 
             if(!_isBindingCompleted)
             {
@@ -75,7 +64,7 @@ namespace Bit34.DI
                 else
                 {
                     //  Add binding
-                    binding = new InjectionBinding(bindingType, this);
+                    binding = new InjectionBinding<T>(this);
                     _bindings.Add(bindingType, binding);
                 }
             }
@@ -89,7 +78,12 @@ namespace Bit34.DI
                 }
             }
 
-            return binding;
+            return (InjectionBinding<T>)binding;
+        }
+
+        public bool HasBindingForType(Type type)
+        {
+            return _bindings.ContainsKey(type);
         }
 
         public InjectionError GetError(int index)
@@ -160,7 +154,7 @@ namespace Bit34.DI
             Type bindingType = typeof(T);
 
             object value = null;
-            InjectionBinding binding = null;
+            IInjectionBinding binding = null;
             if (_bindings.TryGetValue(bindingType, out binding) == true)
             {
                 value = GetInstanceAndInit(binding.InstanceProvider);
@@ -310,7 +304,7 @@ namespace Bit34.DI
         
         public bool InjectIntoField(FieldInfo fieldInfo, object container)
         {
-            InjectionBinding binding = null;
+            IInjectionBinding binding = null;
             if (_bindings.TryGetValue(fieldInfo.FieldType, out binding) == true)
             {
                 object value = GetInstanceAndInit(binding.InstanceProvider);
@@ -322,7 +316,7 @@ namespace Bit34.DI
 		
         public bool InjectIntoProperty(PropertyInfo propertyInfo, object container)
         {
-            InjectionBinding binding = null;
+            IInjectionBinding binding = null;
             if (_bindings.TryGetValue(propertyInfo.PropertyType, out binding) == true)
             {
                 object value = GetInstanceAndInit(binding.InstanceProvider);
