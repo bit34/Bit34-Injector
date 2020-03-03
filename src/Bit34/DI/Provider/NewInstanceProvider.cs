@@ -1,24 +1,14 @@
-using System;
-
 namespace Bit34.DI.Provider
 {
-    public class NewInstanceProvider<T> : IInstanceProvider where T : new()
+    public class NewInstanceProvider<T> : BaseInstanceProvider where T : new()
     {
-        //	MEMBERS
-        public Type InstanceType { get{ return typeof(T); } }
-        public Action<object> PostInjectionCallback{get; private set;}
-        private object _instance;
-
-        //  CONSTRUCTOR
-        public NewInstanceProvider(){}
+        //  CONSTRUCTORS
+        public NewInstanceProvider():
+            base(typeof(T))
+        { }
 
         //  METHODS
-        public void SetPostInjectionCallback(Action<object> postInjectionCallback)
-        {
-            PostInjectionCallback = postInjectionCallback;
-        }
-        
-        public void GetInstance(out object value, out bool isNew)
+        public override void GetInstance(out object value, out bool isNew)
         {
             if(_instance==null)
             {

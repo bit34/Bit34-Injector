@@ -7,6 +7,7 @@ namespace Bit34.DI.Error
         TypeNotAssignableToTarget,
         ValueNotAssignableToBindingType,
         CanNotFindBindingForType,
-        BindingAfterInjection
+        BindingAfterInjection,
+        InjectionRestricted
     }
 }
