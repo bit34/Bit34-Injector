@@ -1,6 +1,6 @@
 using System;
 
-namespace Bit34.DI.Provider
+namespace Com.Bit34Games.DI.Provider
 {
     public interface IInstanceProvider
     {

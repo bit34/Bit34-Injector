@@ -1,4 +1,4 @@
-namespace Bit34.DI
+namespace Com.Bit34Games.DI
 {
     public interface IInjectorTester : IInjector
     {

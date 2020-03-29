@@ -1,7 +1,6 @@
-# Minic DI (Dependency Injection) Library
+# Bit34 Dependency Injection Library
 
-This is the a minimal dependency injection library written in C#. 
-
+This is a dependency injection library with (intentionally) limited features to be used with our in-house MVC library.
 
 ## What is a dependency injection library?
 

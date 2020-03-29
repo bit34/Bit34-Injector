@@ -1,6 +1,6 @@
-using Bit34.DI.Binding;
+using Com.Bit34Games.DI.Binding;
 
-namespace Bit34.DI.Provider
+namespace Com.Bit34Games.DI.Provider
 {
     public interface IInstanceProviderSetter<TBinding>
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Bit34.DI.Error
+namespace Com.Bit34Games.DI.Error
 {
     public class InjectionException : Exception
     {

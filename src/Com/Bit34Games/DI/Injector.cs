@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Bit34.DI.Binding;
-using Bit34.DI.Error;
-using Bit34.DI.Provider;
-using Bit34.DI.Reflection;
+using Com.Bit34Games.DI.Binding;
+using Com.Bit34Games.DI.Error;
+using Com.Bit34Games.DI.Provider;
+using Com.Bit34Games.DI.Reflection;
 
-namespace Bit34.DI
+namespace Com.Bit34Games.DI
 {
     public class Injector : IInjectorTester, IInstanceProviderList
     {

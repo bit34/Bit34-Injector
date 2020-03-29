@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Bit34.DI.Error;
-using Bit34.DI.Provider;
+using Com.Bit34Games.DI.Error;
+using Com.Bit34Games.DI.Provider;
 
-namespace Bit34.DI
+namespace Com.Bit34Games.DI
 {
     public interface IInjector
     {

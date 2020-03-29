@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 
 
-namespace Bit34.DI.Reflection
+namespace Com.Bit34Games.DI.Reflection
 {
     public class ReflectionCache
     {

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Bit34.DI
+namespace Com.Bit34Games.DI
 {
 	public interface IMemberInjector
     {

@@ -1,4 +1,4 @@
-namespace Bit34.DI.Binding
+namespace Com.Bit34Games.DI.Binding
 {
     public interface IInjectionBindingOptions
     {

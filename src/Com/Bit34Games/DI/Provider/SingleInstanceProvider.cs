@@ -1,4 +1,4 @@
-namespace Bit34.DI.Provider
+namespace Com.Bit34Games.DI.Provider
 {
     public class SingleInstanceProvider : BaseInstanceProvider
     {
