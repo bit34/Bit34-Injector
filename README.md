@@ -1,90 +1,192 @@
-# Bit34 Dependency Injection Library
+# **Bit34 Dependency Injection Library**
 
-This is a dependency injection library with (intentionally) limited features to be used with our in-house MVC library.
+# **Table of contents**
+- [What is it?](#what-is-it)
+- [Who is it for?](#who-is-it-for)
+- [What does dependency injection do anyway?](#what-does-dependency-injection-do-anyway)
+- [Basic example](#basic-example)
+- [Documentation](#documentation)
+    - [Design decisions](#design-decisions)
+    - [Creating Injector](#creating-injector)
+    - [Adding Bindings](#adding-bindings)
+    - [Injection](#injection)
+    - [Error Handling](#error-handling)
 
-## What is a dependency injection library?
+## **What is it?**
+This is a C# dependency injection (DI) library with a small set of features (by design).
 
-To be added...
+## **Who is it for?**
+It is primarily developed to be used in conjunction with our other libraries. Its simple nature makes it an easy point to start learning DI.
 
-## Why should I need one?
+## **What does dependency injection do anyway?**
+If you are new to DI just jump into [this Unity3D tutorial project](https://github.com/bit34/Bit34-DI-UnityExamples) to learn its usage and advantages.
 
-To be added...
-
-## A quick tutorial
-
-Let's say you have a `Settings` class and you want to access its single instance in some parts of your project.
-
+## **Basic example**
 ```
-public interface ISettings
+using System;
+using Com.Bit34Games.DI;
+
+//  A class that we need to access its reference in other classes
+class UserData
 {
-    float SoundVolume{ get; }
+    public string name;
+
+    public UserData()
+    {
+        this.name = "Guest";
+    }
 }
 
-public class Settings : ISettings
+//  A target class that will be injected into
+class MyWindow
 {
-    public float SoundVolume{ get; set; }
+    [Inject] private UserData _userData;
 
-    public Settings()
+    public void Show()
     {
-        SoundVolume = 1.0f;
+        Console.WriteLine("Hello " + _userData.name);
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        //  Create injector
+        Injector injector = new Injector(true);
+
+        //  Add bindings
+        UserData myUser = new UserData();
+        myUser.name = "It is me";
+        injector.AddBinding<UserData>().ToValue(myUser);
+
+        //  Inject into targets
+        MyWindow window = new MyWindow();
+        injector.InjectInto(window);
+
+        //  All set
+        window.Show();
     }
 }
 ```
+
+## **Documentation**
 ---
-(Using an interface is not neccesary, we will discuss later why it will come in handly to implement an interface with readonly access.)
+### **Design Decisions**
+
+- Only singleton bindings; every binded type will share same instance.
+- Bind first, use later; after making first injection you can not make any more bindings and it will cause an error.
 
 ---
+### **Creating Injector**
 
-First, you have to add `[Inject]` attribute to the fields or properties in all classes that you want to gain access to `Settings` class instance. They can be public or private.
+Constructor parameter ```shouldThrowException``` allows you to choose error handling behavior.
+
+When set to ```true```, ```Injector``` throws an exception when an error occurs. This should be your default choice for development cause it will let you find errors sooner.
+
+When set to ```false```, ```Injector``` internally stores error messages for later examinations. This behavior is added for development purposes. Even though it is not advised, you can use this option on production to manually catch unexpected errors.
+
+---
+### **Adding Bindings**
+
+Binding is implemented as a fluent api to make it easy to write and read.
+
+To add a new binding you start by calling ```AddBinding``` generic method with the ***binding type*** that you want to inject in classes.
+
 ```
-public class SettingsWindow
-{
-    [Inject]
-    private Settings settings;
+injector.AddBinding<MyClass>()
+```
 
-    //  other stuff
+It returns an object with two methods.
+
+```ToValue``` method allows you to bind an already instantiated ***provider object*** to ***binding type***.
+
+```
+MyClass myClass = new MyClass();
+injector.AddBinding<MyClass>().ToValue(myClass);
+```
+
+```ToType``` method allows you to bind a ***provider type*** that will be instantiated the first time it is needed.
+
+```
+injector.AddBinding<MyClass>().ToType<MyClass>();
+```
+
+*PS: ***Provider type*** must have a parameterless constructor or a constructor that has default values for all off its parameters.*
+
+#### **Assignable and multiple bindings**
+
+You can bind a ***binding type*** to assignable ***provider type*** or ***value*** (interface implementations to interfaces, child classes to parent classes).
+
+Lets say you have a ```Setting``` class that implements read only ```ISettings``` interface.
+
+```
+interface ISettings
+{
+    float Volume { get; }
 }
 
-public class SoundPlayer
+class Settings : ISettings
 {
-    [Inject]
-    private Settings settings;
-
-    //  other stuff
+    public float Volume { get; set; }
 }
 ```
 
-Second, you have to create an Injector instance and add bindings.
-```
-Injector injector = new Injector();
-```
-There are two options for adding a binding:
-
-- You can bind a type to an already instantiated *assignable* instance.
+You can use interface as ***binding type*** since its implementations are assignable to it.  
 
 ```
-Settings settings = new Settings();
-settings.SoundVolume = 0.5f;
-
-injector.AddBinding<Settings>().ToValue(settings);
+injector.AddBinding<ISettings>().ToType<Settings>();
 ```
 
-- Or you can bind a type to another *assignable* type that has a default constructor which will be instantiated on first usage.
+Actually you can bind multiple ***binding types*** to same value or ***provider type*** if they are assignable. They will share the same instance of ```Settings``` class.
 
 ```
 injector.AddBinding<Settings>().ToType<Settings>();
+injector.AddBinding<ISettings>().ToType<Settings>();
 ```
 
-Now you can inject into objects with `[Inject]` attributes.
+Some uses of this practice are;
+- Using read only and mutable interfaces of a type to prevent accedental writes (e.g. injecting ```Settings``` in ```SettingsWindow```, injecting readonly ```ISettings``` interface everywhere else)
+- Binding platform specific implementations and to a common interface to provide abstraction (e.g. injecting IPlatform in everywhere, binding it to WindowsPlatform or LinuxPlatform implementations depending on your target)
+- Using debugging friendly implementations of interfaces to find or isolate errors faster (e.g. an implementaion that adds verbose logging)
+- Provide a dummy implementations of a class before its actual implementation is available (e.g. injecting IHighScoreServer, using MockHighScoreServer until it is provided )
+
+#### **Binding Restrictions**
+
+TBA
+
+---
+### **Injection**
+
+After you complete your injections all you have to do is to using ```InjectInto``` to target objects. This will set all fields and properties that has ```Inject``` attribute.
 
 ```
-SettingsWindow window = new SettingsWindow();
-SoundPlayer player = new SoundPlayer();
-
 injector.InjectInto(window);
-injector.InjectInto(player);
+injector.InjectInto(settingsPanel);
+injector.InjectInto(playerManager);
 ```
 
-# Error handling
+### **Manually getting instances**
 
-To be added...
+Other than injections ```Injector``` has methods to access instances directly. Those are usefully for initilization methods after bindings are completed.
+
+```T GetInstance<T>()``` methods gets the instance of that ***bindind type***
+
+```
+injector.GetInstance<ISaveManager>().LoadSaves();
+```
+
+```IEnumerator<T> GetAssignableInstances<T>()``` method checks all ***provider types*** and values and collect if they are assignable to given type;
+
+```
+IEnumerator<IManager> managers = injector.GetAssignableInstances<IManager>();
+
+while(manager.MoveNext())
+{
+    managers.Current.Initialize();
+}
+```
+
+### **Error Handling**
+
+When `Injector` is set to NOT to throw errors in constructor you can use ```ErrorCount``` property and ```GetError()``` method any time to inspect stored errors in ```Injector```.

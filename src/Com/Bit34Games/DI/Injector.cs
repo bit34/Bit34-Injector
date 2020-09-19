@@ -15,6 +15,7 @@ namespace Com.Bit34Games.DI
         public int BindingCount  { get{ return _bindings.Count;  } }
         public int ProviderCount { get{ return _providers.Count; } }
         public int ErrorCount    { get{ return _errors.Count;    } }
+        public bool HasErrors    { get{ return _errors.Count>0;  } }
         private Dictionary<Type, IInjectionBinding> _bindings;
         private Dictionary<Type, IInstanceProvider> _providers;
         private Dictionary<Type, ReflectionCache>   _reflections;
