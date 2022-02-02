@@ -1,4 +1,4 @@
-namespace Com.Bit34Games.DI.Provider
+namespace Com.Bit34Games.Injector.Provider
 {
     public class SingleInstanceProvider : BaseInstanceProvider
     {
@@ -10,15 +10,15 @@ namespace Com.Bit34Games.DI.Provider
             base(instance.GetType())
         {
             _instance = instance;
-            _isNew = true;
+            _isNew    = true;
         }
 
         //  METHODS
         public override void GetInstance(out object instance, out bool isNew)
         {
             instance = _instance;
-            isNew = _isNew;
-            _isNew = false;
+            isNew    = _isNew;
+            _isNew   = false;
         }
     }
 }

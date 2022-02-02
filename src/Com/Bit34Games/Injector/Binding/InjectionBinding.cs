@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
-using Com.Bit34Games.DI.Provider;
+using Com.Bit34Games.Injector.Provider;
 
-namespace Com.Bit34Games.DI.Binding
+namespace Com.Bit34Games.Injector.Binding
 {
     public class InjectionBinding<TBinding> : IInjectionBinding, IInstanceProviderSetter<TBinding>
     {
         //	MEMBERS
-        public Type BindingType { get; private set; }
-        public IInstanceProvider InstanceProvider{get; private set;}
-        public List<IInjectionRestriction> RestrictionList { get; private set; }
-        private IInstanceProviderList _instanceProviderList;
+        public Type                        BindingType      { get; private set; }
+        public IInstanceProvider           InstanceProvider { get; private set; }
+        public List<IInjectionRestriction> RestrictionList  { get; private set; }
+        private IInstanceProviderList      _instanceProviderList;
     
 
         //	CONSTRUCTOR

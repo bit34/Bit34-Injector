@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using Com.Bit34Games.DI.Binding;
-using Com.Bit34Games.DI.Error;
-using Com.Bit34Games.DI.Provider;
-using Com.Bit34Games.DI.Reflection;
+using Com.Bit34Games.Injector.Binding;
+using Com.Bit34Games.Injector.Error;
+using Com.Bit34Games.Injector.Provider;
+using Com.Bit34Games.Injector.Reflection;
 
-namespace Com.Bit34Games.DI
+namespace Com.Bit34Games.Injector
 {
-    public class Injector : IInjectorTester, IInstanceProviderList
+    public class InjectorContext : IInjector, IInjectorTester, IInstanceProviderList
     {
         //  MEMBERS
         public int BindingCount  { get{ return _bindings.Count;  } }
@@ -20,20 +20,21 @@ namespace Com.Bit34Games.DI
         private Dictionary<Type, IInstanceProvider> _providers;
         private Dictionary<Type, ReflectionCache>   _reflections;
         private Dictionary<Type, object>            _assignableInstances;
-        private bool _shouldThrowException;
-        private List<InjectionError> _errors;
-        private string[] _errorMessages;
-        private bool _isBindingCompleted;
+        private bool                                _shouldThrowException;
+        private List<InjectionError>                _errors;
+        private string[]                            _errorMessages;
+        private bool                                _isBindingCompleted;
 
         //	CONSTRUCTORS
-        public Injector(bool shouldThrowException=false)
+        public InjectorContext(bool shouldThrowException=false)
         {
-            _bindings = new Dictionary<Type, IInjectionBinding>();
-            _providers = new Dictionary<Type, IInstanceProvider>();
-            _reflections = new Dictionary<Type, ReflectionCache>();
-            _assignableInstances = new Dictionary<Type, object>();
+            _bindings             = new Dictionary<Type, IInjectionBinding>();
+            _providers            = new Dictionary<Type, IInstanceProvider>();
+            _reflections          = new Dictionary<Type, ReflectionCache>();
+            _assignableInstances  = new Dictionary<Type, object>();
             _shouldThrowException = shouldThrowException;
-            _errors = new List<InjectionError>();
+
+            _errors        = new List<InjectionError>();
             _errorMessages = new string[Enum.GetValues(typeof(InjectionErrorType)).Length];
             _errorMessages[(int)InjectionErrorType.AlreadyAddedBindingForType           ] = "Injection Error:Already added binding for type [{1}]\n{0}";
             _errorMessages[(int)InjectionErrorType.AlreadyAddedTypeWithDifferentProvider] = "Injection Error:Requested provider with type [{2}] already added with a different provider\n[{0}]]";

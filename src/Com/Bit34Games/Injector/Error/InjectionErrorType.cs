@@ -1,4 +1,4 @@
-namespace Com.Bit34Games.DI.Error
+namespace Com.Bit34Games.Injector.Error
 {
     public enum InjectionErrorType
     {

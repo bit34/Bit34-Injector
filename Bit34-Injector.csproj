@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Bit34_DI</RootNamespace>
+    <RootNamespace>Com_Bit34Games_Injector</RootNamespace>
   </PropertyGroup>
 
 </Project>

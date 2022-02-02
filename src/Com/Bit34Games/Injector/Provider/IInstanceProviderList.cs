@@ -1,6 +1,6 @@
 using System;
 
-namespace Com.Bit34Games.DI.Provider
+namespace Com.Bit34Games.Injector.Provider
 {
     public interface IInstanceProviderList
     {

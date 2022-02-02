@@ -3,13 +3,13 @@ using System.Reflection;
 using System.Collections.Generic;
 
 
-namespace Com.Bit34Games.DI.Reflection
+namespace Com.Bit34Games.Injector.Reflection
 {
     public class ReflectionCache
     {
 		//	MEMBERS
-		public readonly Type reflectedType;
-		public LinkedList<FieldInfo> Fields { get; private set; }
+		public readonly Type            reflectedType;
+		public LinkedList<FieldInfo>    Fields     { get; private set; }
 		public LinkedList<PropertyInfo> Properties { get; private set; }
 
 
@@ -17,8 +17,8 @@ namespace Com.Bit34Games.DI.Reflection
         public ReflectionCache(Type reflectedType)
 		{
             this.reflectedType = reflectedType;
-			Fields = new LinkedList<FieldInfo> ();
-			Properties = new LinkedList<PropertyInfo> ();
+			Fields             = new LinkedList<FieldInfo> ();
+			Properties         = new LinkedList<PropertyInfo> ();
 
             AddFields(this.reflectedType);
             AddProperties(this.reflectedType);

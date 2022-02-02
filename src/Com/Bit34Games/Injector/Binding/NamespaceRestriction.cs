@@ -1,7 +1,7 @@
 using System;
-using Com.Bit34Games.DI.Provider;
+using Com.Bit34Games.Injector.Provider;
 
-namespace Com.Bit34Games.DI.Binding
+namespace Com.Bit34Games.Injector.Binding
 {
     public class NamespaceRestriction : IInjectionRestriction
     {

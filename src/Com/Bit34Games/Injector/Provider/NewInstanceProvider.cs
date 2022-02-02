@@ -1,4 +1,4 @@
-namespace Com.Bit34Games.DI.Provider
+namespace Com.Bit34Games.Injector.Provider
 {
     public class NewInstanceProvider<T> : BaseInstanceProvider where T : new()
     {

@@ -1,4 +1,4 @@
-# **Bit34 Dependency Injection Library**
+# **Bit34 Injector - Dependency Injection Library**
 
 # **Table of contents**
 - [What is it?](#what-is-it)
@@ -16,15 +16,15 @@
 This is a C# dependency injection (DI) library with a small set of features (by design).
 
 ## **Who is it for?**
-It is primarily developed to be used in conjunction with our other libraries. Its simple nature makes it an easy point to start learning DI.
+It is primarily developed to be used in conjunction with our other libraries. Its simple nature also makes it an easy point to start learning DI.
 
 ## **What does dependency injection do anyway?**
-If you are new to DI just jump into [this Unity3D tutorial project](https://github.com/bit34/Bit34-DI-UnityExamples) to learn its usage and advantages.
+If you are new to DI just jump into [this Unity3D tutorial project](https://github.com/bit34/bit34-injector-unityexamples) to learn its usage and advantages.
 
 ## **Basic example**
 ```
 using System;
-using Com.Bit34Games.DI;
+using Com.Bit34Games.Injector;
 
 //  A class that we need to access its reference in other classes
 class UserData
@@ -53,7 +53,7 @@ class Program
     static void Main(string[] args)
     {
         //  Create injector
-        Injector injector = new Injector(true);
+        IInjector InjectorContext = new InjectorContext(true);
 
         //  Add bindings
         UserData myUser = new UserData();
@@ -82,9 +82,9 @@ class Program
 
 Constructor parameter ```shouldThrowException``` allows you to choose error handling behavior.
 
-When set to ```true```, ```Injector``` throws an exception when an error occurs. This should be your default choice for development cause it will let you find errors sooner.
+When set to ```true```, ```InjectorContext``` throws an exception when an error occurs. This should be your default choice for development cause it will let you find errors sooner.
 
-When set to ```false```, ```Injector``` internally stores error messages for later examinations. This behavior is added for development purposes. Even though it is not advised, you can use this option on production to manually catch unexpected errors.
+When set to ```false```, ```InjectorContext``` internally stores error messages for later examinations. This behavior is added for development purposes. Even though it is not advised, you can use this option on production to manually catch unexpected errors.
 
 ---
 ### **Adding Bindings**
@@ -168,7 +168,7 @@ injector.InjectInto(playerManager);
 
 ### **Manually getting instances**
 
-Other than injections ```Injector``` has methods to access instances directly. Those are usefully for initilization methods after bindings are completed.
+Other than injections ```InjectorContext``` has methods to access instances directly. Those are usefully for initilization methods after bindings are completed.
 
 ```T GetInstance<T>()``` methods gets the instance of that ***bindind type***
 
@@ -189,4 +189,4 @@ while(manager.MoveNext())
 
 ### **Error Handling**
 
-When `Injector` is set to NOT to throw errors in constructor you can use ```ErrorCount``` property and ```GetError()``` method any time to inspect stored errors in ```Injector```.
+When `InjectorContext` is set to NOT to throw errors in constructor you can use ```ErrorCount``` property and ```GetError()``` method any time to inspect stored errors in ```InjectorContext```.

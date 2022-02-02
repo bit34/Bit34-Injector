@@ -1,11 +1,11 @@
 using System;
 
-namespace Com.Bit34Games.DI.Provider
+namespace Com.Bit34Games.Injector.Provider
 {
     public abstract class BaseInstanceProvider : IInstanceProvider
     {
         //  MEMBERS
-        public Type InstanceType { get; protected set; }
+        public    Type   InstanceType { get; protected set; }
         protected object _instance;
 
         //  CONSTRUCTORS
