@@ -3,6 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Com_Bit34Games_Injector</RootNamespace>
+    <PackageId>Com.Bit34Games.Injector</PackageId>
+    <Version>2.0.0</Version>
+    <Authors>Oguz Sandikci</Authors>
+    <Company>Bit34 Games</Company>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="LICENSE.txt" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
 </Project>

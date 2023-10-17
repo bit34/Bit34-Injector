@@ -13,7 +13,7 @@
     - [Error Handling](#error-handling)
 
 ## **What is it?**
-This is a C# dependency injection (DI) library with a small set of features (by design).
+This is a C# dependency injection (DI) library with a small set of features.
 
 ## **Who is it for?**
 It is primarily developed to be used in conjunction with our other libraries. Its simple nature also makes it an easy point to start learning DI.
