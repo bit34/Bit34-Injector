@@ -5,7 +5,8 @@ namespace Com.Bit34Games.Injector
     /// <summary>
     /// Optional per-member injection hook passed to <see cref="IInjector.InjectInto"/>.
     /// Implementations decide on a member-by-member basis whether to handle the value
-    /// themselves and skip the default binding lookup.
+    /// themselves and skip the default binding lookup. The <c>Try*</c> naming follows the
+    /// standard .NET convention: <c>true</c> means the call did the work.
     /// </summary>
     public interface IMemberInjector
     {
@@ -18,7 +19,7 @@ namespace Com.Bit34Games.Injector
         /// <c>true</c> if this implementation handled the field — the default binding lookup is
         /// skipped for this member. <c>false</c> to let the default injection run.
         /// </returns>
-        bool InjectIntoField(FieldInfo fieldInfo, object container);
+        bool TryInjectIntoField(FieldInfo fieldInfo, object container);
 
         /// <summary>
         /// Optionally set <paramref name="propertyInfo"/> on <paramref name="container"/>.
@@ -27,6 +28,6 @@ namespace Com.Bit34Games.Injector
         /// <c>true</c> if this implementation handled the property — the default binding lookup
         /// is skipped for this member. <c>false</c> to let the default injection run.
         /// </returns>
-        bool InjectIntoProperty(PropertyInfo propertyInfo, object container);
+        bool TryInjectIntoProperty(PropertyInfo propertyInfo, object container);
     }
 }

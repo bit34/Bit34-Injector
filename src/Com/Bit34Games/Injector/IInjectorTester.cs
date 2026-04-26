@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Com.Bit34Games.Injector.Error;
 
 namespace Com.Bit34Games.Injector
@@ -23,16 +24,15 @@ namespace Com.Bit34Games.Injector
         /// <summary>Number of underlying providers created by completed bindings.</summary>
         int  ProviderCount { get; }
 
-        /// <summary>Number of recorded errors.</summary>
-        int  ErrorCount    { get; }
+        /// <summary>
+        /// Recorded errors in registration order. Read-only view; <c>foreach</c>-friendly. Use
+        /// <c>Errors.Count</c> for the count and <c>Errors[i]</c> for indexed access.
+        /// </summary>
+        IReadOnlyList<InjectionError> Errors { get; }
 
         //  METHODS
 
-        /// <summary>Return the error at <paramref name="index"/> in registration order.</summary>
-        /// <param name="index">Zero-based index, must be less than <see cref="ErrorCount"/>.</param>
-        InjectionError GetError(int index);
-
         /// <summary>True when a binding for <paramref name="type"/> has been registered.</summary>
-        bool           HasBindingForType(Type type);
+        bool HasBindingForType(Type type);
     }
 }

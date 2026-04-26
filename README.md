@@ -93,7 +93,7 @@ In non-throwing mode the API contract is:
 
 - ```AddBinding<T>()``` returns a no-op setter on error. Chained ```.ToValue(...)```, ```.ToType<...>()```, and ```.RestrictToNamespace(...)``` calls are safe but do nothing.
 - ```GetInstance<T>()``` returns ```default(T)``` (i.e. ```null``` for reference types) on error. Callers must check ```HasErrors``` before using the result.
-- After your bind phase, check ```HasErrors``` and inspect ```ErrorCount``` / ```GetError(i)``` to see what went wrong.
+- After your bind phase, check ```HasErrors``` and iterate ```Errors``` (an ```IReadOnlyList<InjectionError>```) to see what went wrong.
 
 Do not ship non-throwing mode to production unless you have a wrapper that checks ```HasErrors``` between operations.
 
@@ -187,17 +187,15 @@ Other than injections ```InjectorContext``` has methods to access instances dire
 injector.GetInstance<ISaveManager>().LoadSaves();
 ```
 
-```IEnumerator<T> GetAssignableInstances<T>()``` method checks all ***provider types*** and values and collect if they are assignable to given type;
+```IEnumerable<T> GetAssignableInstances<T>()``` method checks all ***provider types*** and values and collects them if they are assignable to the given type;
 
 ```
-IEnumerator<IManager> managers = injector.GetAssignableInstances<IManager>();
-
-while(managers.MoveNext())
+foreach (IManager manager in injector.GetAssignableInstances<IManager>())
 {
-    managers.Current.Initialize();
+    manager.Initialize();
 }
 ```
 
 ### **Error Handling**
 
-When `InjectorContext` is set to NOT to throw errors in constructor you can use ```ErrorCount``` property and ```GetError()``` method any time to inspect stored errors in ```InjectorContext```.
+When `InjectorContext` is set to NOT throw errors in its constructor, the recorded errors are exposed through the ```Errors``` property — an ```IReadOnlyList<InjectionError>``` you can iterate, count, or index into. The ```HasErrors``` shortcut tells you whether the list is non-empty.

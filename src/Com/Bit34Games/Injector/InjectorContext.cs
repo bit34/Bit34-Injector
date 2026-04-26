@@ -24,9 +24,9 @@ namespace Com.Bit34Games.Injector
         /// <inheritdoc />
         public int ProviderCount { get{ return _providers.Count; } }
         /// <inheritdoc />
-        public int ErrorCount    { get{ return _errors.Count;    } }
-        /// <inheritdoc />
         public bool HasErrors    { get{ return _errors.Count>0;  } }
+        /// <inheritdoc />
+        public IReadOnlyList<InjectionError> Errors { get{ return _errors; } }
         private Dictionary<Type, IInjectionBinding> _bindings;
         private Dictionary<Type, IInstanceProvider> _providers;
         private Dictionary<Type, ReflectionCache>   _reflections;
@@ -116,12 +116,6 @@ namespace Com.Bit34Games.Injector
         }
 
         /// <inheritdoc />
-        public InjectionError GetError(int index)
-        {
-            return _errors[index];
-        }
-
-        /// <inheritdoc />
         public void InjectInto(object container, IMemberInjector injectionOverride = null)
         {
             _isBindingCompleted = true;
@@ -133,7 +127,7 @@ namespace Com.Bit34Games.Injector
             foreach (FieldInfo fieldInfo in classReflection.Fields)
             {
                 //  handle injection overriding, if any
-                if(injectionOverride!=null && injectionOverride.InjectIntoField(fieldInfo, container)) { continue; }
+                if(injectionOverride!=null && injectionOverride.TryInjectIntoField(fieldInfo, container)) { continue; }
 
                 //  Get binding for field type
                 IInjectionBinding binding;
@@ -151,7 +145,7 @@ namespace Com.Bit34Games.Injector
             foreach (PropertyInfo propertyInfo in classReflection.Properties)
             {
                 //  handle injection overriding, if any
-                if(injectionOverride!=null && injectionOverride.InjectIntoProperty(propertyInfo, container)) { continue; }
+                if(injectionOverride!=null && injectionOverride.TryInjectIntoProperty(propertyInfo, container)) { continue; }
 
                 //  Get binding for field type
                 IInjectionBinding binding;
@@ -193,7 +187,7 @@ namespace Com.Bit34Games.Injector
         }
 
         /// <inheritdoc />
-        public IEnumerator<T> GetAssignableInstances<T>()
+        public IEnumerable<T> GetAssignableInstances<T>()
         {
             _isBindingCompleted = true;
 
@@ -225,8 +219,10 @@ namespace Com.Bit34Games.Injector
             {
                 assignableInstances = (HashSet<T>)instances;
             }
-            
-            return assignableInstances.GetEnumerator();
+
+            //  Return the HashSet<T> directly — it implements IEnumerable<T>, so callers can
+            //  foreach over the result without forcing them through a manual MoveNext loop.
+            return assignableInstances;
         }
 
 #endregion

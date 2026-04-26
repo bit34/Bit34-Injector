@@ -74,11 +74,11 @@ namespace Com.Bit34Games.Injector
         /// </summary>
         /// <typeparam name="T">A base type or interface to filter providers by.</typeparam>
         /// <returns>
-        /// Enumerator over the matching instances. The result set is cached per
-        /// <typeparamref name="T"/> on first call; providers added after that call for the same
-        /// <typeparamref name="T"/> will not appear (this can't happen with the default
-        /// bind-then-use lifecycle).
+        /// Enumerable of the matching instances; safe to <c>foreach</c> over directly. The
+        /// result set is cached per <typeparamref name="T"/> on first call; providers added
+        /// after that call for the same <typeparamref name="T"/> will not appear (this can't
+        /// happen with the default bind-then-use lifecycle).
         /// </returns>
-        IEnumerator<T> GetAssignableInstances<T>();
+        IEnumerable<T> GetAssignableInstances<T>();
     }
 }
