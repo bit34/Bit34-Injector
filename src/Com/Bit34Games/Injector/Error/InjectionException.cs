@@ -12,14 +12,14 @@ namespace Com.Bit34Games.Injector.Error
         //  MEMBERS
 
         /// <summary>Structured error code suitable for switching on in catch blocks.</summary>
-        public readonly InjectionErrorType error;
+        public readonly InjectionErrorType Error;
 
         //  CONSTRUCTOR
 
         /// <summary>Create a new <see cref="InjectionException"/>. Constructed by the injector — consumers should not call this directly.</summary>
-        public InjectionException(InjectionErrorType error,string message) : base(message)
+        public InjectionException(InjectionErrorType error, string message) : base(message)
         {
-            this.error = error;
+            Error = error;
         }
     }
 }

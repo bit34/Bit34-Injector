@@ -11,7 +11,7 @@ namespace Com.Bit34Games.Injector.Binding
     /// </summary>
     public interface IInjectionBinding : IInjectionBindingOptions
     {
-        //	MEMBERS
+        //  MEMBERS
 
         /// <summary>The type that consumers request when they ask the injector for this binding.</summary>
         Type                                BindingType      { get; }

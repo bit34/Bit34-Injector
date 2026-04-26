@@ -9,7 +9,7 @@ namespace Com.Bit34Games.Injector.Binding
     //  by the injection pipeline). Not meant to be constructed directly.
     internal class InjectionBinding<TBinding> : IInjectionBinding, IInstanceProviderSetter<TBinding>
     {
-        //	MEMBERS
+        //  MEMBERS
         public Type              BindingType      { get; private set; }
         public IInstanceProvider InstanceProvider { get; private set; }
         //  Public surface is the read-only view; the concrete List<> is kept
@@ -18,8 +18,7 @@ namespace Com.Bit34Games.Injector.Binding
         private List<IInjectionRestriction>         _restrictionList;
         private IInstanceProviderList               _instanceProviderList;
 
-
-        //	CONSTRUCTOR
+        //  CONSTRUCTOR
         public InjectionBinding(IInstanceProviderList instanceProviderList)
         {
             BindingType           = typeof(TBinding);

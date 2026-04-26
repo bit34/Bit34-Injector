@@ -10,7 +10,7 @@ namespace Com.Bit34Games.Injector.Provider
     /// <typeparam name="TBinding">The type that consumers will request from the injector.</typeparam>
     public interface IInstanceProviderSetter<TBinding>
     {
-        //	METHODS
+        //  METHODS
 
         /// <summary>
         /// Bind to an existing instance of <typeparamref name="TBinding"/>.

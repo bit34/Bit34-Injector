@@ -11,20 +11,20 @@ namespace Com.Bit34Games.Injector.Binding
     public class NamespaceRestriction : IInjectionRestriction
     {
         //  MEMBERS
-        private string[] _namespaceNameList;
+        private string[] _namespaceNames;
 
         //  CONSTRUCTORS
 
         /// <summary>Restrict to a single namespace.</summary>
         public NamespaceRestriction(string namespaceName)
         {
-            _namespaceNameList = new string[]{namespaceName};
+            _namespaceNames = new string[]{namespaceName};
         }
 
-        /// <summary>Restrict to any namespace in <paramref name="namespaceNameList"/>.</summary>
-        public NamespaceRestriction(string[] namespaceNameList)
+        /// <summary>Restrict to any namespace in <paramref name="namespaceNames"/>.</summary>
+        public NamespaceRestriction(string[] namespaceNames)
         {
-            _namespaceNameList = namespaceNameList;
+            _namespaceNames = namespaceNames;
         }
 
         //  METHODS
@@ -33,11 +33,11 @@ namespace Com.Bit34Games.Injector.Binding
         public bool Check(object container, Type typeToInject, IInstanceProvider provider)
         {
             string containerNamespace = container.GetType().Namespace;
-            for (int i = 0; i < _namespaceNameList.Length; i++)
+            for (int i = 0; i < _namespaceNames.Length; i++)
             {
-                string namespaceName = _namespaceNameList[i];
+                string namespaceName = _namespaceNames[i];
                 int index = containerNamespace.IndexOf(namespaceName);
-                if(index==0 && (containerNamespace.Length == namespaceName.Length || containerNamespace[namespaceName.Length] == '.'))
+                if (index == 0 && (containerNamespace.Length == namespaceName.Length || containerNamespace[namespaceName.Length] == '.'))
                 {
                     return true;
                 }
@@ -48,7 +48,7 @@ namespace Com.Bit34Games.Injector.Binding
         /// <inheritdoc />
         public string GetInfo()
         {
-            return "Namespace restriction(" + String.Join(",", _namespaceNameList) + ")";
+            return "Namespace restriction(" + String.Join(",", _namespaceNames) + ")";
         }
 
     }

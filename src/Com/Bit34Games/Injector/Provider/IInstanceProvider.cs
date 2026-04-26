@@ -23,6 +23,6 @@ namespace Com.Bit34Games.Injector.Provider
         /// <param name="instance">Output; the produced instance.</param>
         /// <param name="isNew">Output; <c>true</c> the first time the instance is produced (so
         /// the injector knows to recursively inject into it), <c>false</c> on subsequent calls.</param>
-        void GetInstance( out object instance, out bool isNew );
+        void GetInstance(out object instance, out bool isNew);
     }
 }

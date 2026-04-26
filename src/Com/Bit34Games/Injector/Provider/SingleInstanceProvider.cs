@@ -12,7 +12,7 @@ namespace Com.Bit34Games.Injector.Provider
         //  CONSTRUCTOR
 
         /// <summary>Wrap <paramref name="instance"/> as a singleton provider.</summary>
-        public SingleInstanceProvider( object instance) :
+        public SingleInstanceProvider(object instance) :
             base(instance.GetType())
         {
             _instance = instance;

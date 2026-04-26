@@ -15,8 +15,8 @@ using System;
 [AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = false)]
 public class InjectAttribute : Attribute
 {
-	//	CONSTRUCTOR
+    //  CONSTRUCTOR
 
-	/// <summary>Default constructor. <c>[Inject]</c> takes no arguments.</summary>
-	public InjectAttribute(){ }
+    /// <summary>Default constructor. <c>[Inject]</c> takes no arguments.</summary>
+    public InjectAttribute(){ }
 }

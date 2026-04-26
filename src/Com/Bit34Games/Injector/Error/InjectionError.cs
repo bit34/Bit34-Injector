@@ -10,10 +10,10 @@ namespace Com.Bit34Games.Injector.Error
         //  MEMBERS
 
         /// <summary>Structured error code suitable for switching on in tests.</summary>
-        public readonly InjectionErrorType error;
+        public readonly InjectionErrorType Error;
 
         /// <summary>Pre-formatted error message including binding/provider type and source location.</summary>
-        public readonly string             message;
+        public readonly string             Message;
 
         //  CONSTRUCTOR
 
@@ -21,8 +21,8 @@ namespace Com.Bit34Games.Injector.Error
         public InjectionError(InjectionErrorType error,
                               string             message)
         {
-            this.error   = error;
-            this.message = message;
+            Error   = error;
+            Message = message;
         }
     }
 }

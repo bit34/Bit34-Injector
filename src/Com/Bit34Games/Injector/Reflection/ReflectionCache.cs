@@ -2,7 +2,6 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-
 namespace Com.Bit34Games.Injector.Reflection
 {
     /// <summary>
@@ -12,50 +11,49 @@ namespace Com.Bit34Games.Injector.Reflection
     /// </summary>
     public class ReflectionCache
     {
-		//	MEMBERS
-		/// <summary>The type this cache was built for.</summary>
-		public readonly Type            reflectedType;
-		/// <summary>All <c>[Inject]</c>-tagged fields, including inherited ones.</summary>
-		public LinkedList<FieldInfo>    Fields     { get; private set; }
-		/// <summary>All <c>[Inject]</c>-tagged writable properties, including inherited ones.</summary>
-		public LinkedList<PropertyInfo> Properties { get; private set; }
+        //  MEMBERS
+        /// <summary>All <c>[Inject]</c>-tagged fields, including inherited ones.</summary>
+        public LinkedList<FieldInfo>    Fields     { get; private set; }
+        /// <summary>All <c>[Inject]</c>-tagged writable properties, including inherited ones.</summary>
+        public LinkedList<PropertyInfo> Properties { get; private set; }
+        //  Type this cache was built for. Private — only the constructor needs it,
+        //  and consumers reach the cache via the dictionary keyed by type already.
+        private readonly Type           _reflectedType;
 
-
-        //	CONSTRUCTOR
+        //  CONSTRUCTOR
         /// <summary>Walk <paramref name="reflectedType"/> and its base chain, collecting
         /// <c>[Inject]</c>-tagged fields and writable properties.</summary>
         public ReflectionCache(Type reflectedType)
-		{
-            this.reflectedType = reflectedType;
-			Fields             = new LinkedList<FieldInfo> ();
-			Properties         = new LinkedList<PropertyInfo> ();
+        {
+            _reflectedType = reflectedType;
+            Fields         = new LinkedList<FieldInfo> ();
+            Properties     = new LinkedList<PropertyInfo> ();
 
-            AddFields(this.reflectedType);
-            AddProperties(this.reflectedType);
+            AddFields(_reflectedType);
+            AddProperties(_reflectedType);
         }
-
 
         //  METHODS
         private void AddFields(Type reflectedType)
         {
-            MemberInfo[] fieldInfoList = reflectedType.FindMembers( MemberTypes.Field, 
-                BindingFlags.Instance | 
-                BindingFlags.Public | BindingFlags.NonPublic | 
-                BindingFlags.SetField | BindingFlags.SetProperty , null, null);
+            MemberInfo[] fieldInfoList = reflectedType.FindMembers(MemberTypes.Field,
+                BindingFlags.Instance |
+                BindingFlags.Public | BindingFlags.NonPublic |
+                BindingFlags.SetField | BindingFlags.SetProperty, null, null);
 
             foreach (MemberInfo fieldInfo in fieldInfoList)
             {
                 object[] attributeList = fieldInfo.GetCustomAttributes(typeof(InjectAttribute), true);
                 if (attributeList.Length > 0)
                 {
-                    if(!Fields.Contains((FieldInfo)fieldInfo))
+                    if (!Fields.Contains((FieldInfo)fieldInfo))
                     {
                         Fields.AddLast((FieldInfo)fieldInfo);
                     }
                 }
             }
 
-            if(reflectedType.BaseType!=typeof(object))
+            if (reflectedType.BaseType != typeof(object))
             {
                 AddFields(reflectedType.BaseType);
             }
@@ -63,10 +61,10 @@ namespace Com.Bit34Games.Injector.Reflection
 
         private void AddProperties(Type reflectedType)
         {
-            MemberInfo[] propertyInfoList = reflectedType.FindMembers( MemberTypes.Property,
-                BindingFlags.Instance | 
-                BindingFlags.Public | BindingFlags.NonPublic | 
-                BindingFlags.SetField | BindingFlags.SetProperty , null, null);
+            MemberInfo[] propertyInfoList = reflectedType.FindMembers(MemberTypes.Property,
+                BindingFlags.Instance |
+                BindingFlags.Public | BindingFlags.NonPublic |
+                BindingFlags.SetField | BindingFlags.SetProperty, null, null);
 
             foreach (MemberInfo propertyInfo in propertyInfoList)
             {
@@ -76,14 +74,14 @@ namespace Com.Bit34Games.Injector.Reflection
                     PropertyInfo property = (PropertyInfo)propertyInfo;
                     //  Skip get-only properties — SetValue would throw at injection time.
                     //  CanWrite covers private setters too (we look them up via NonPublic).
-                    if(property.CanWrite && !Properties.Contains(property))
+                    if (property.CanWrite && !Properties.Contains(property))
                     {
                         Properties.AddLast(property);
                     }
                 }
             }
 
-            if(reflectedType.BaseType!=typeof(object))
+            if (reflectedType.BaseType != typeof(object))
             {
                 AddProperties(reflectedType.BaseType);
             }

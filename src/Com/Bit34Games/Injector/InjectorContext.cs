@@ -20,13 +20,13 @@ namespace Com.Bit34Games.Injector
         //  MEMBERS
 
         /// <inheritdoc />
-        public int BindingCount  { get{ return _bindings.Count;  } }
+        public int BindingCount  { get { return _bindings.Count;  } }
         /// <inheritdoc />
-        public int ProviderCount { get{ return _providers.Count; } }
+        public int ProviderCount { get { return _providers.Count; } }
         /// <inheritdoc />
-        public bool HasErrors    { get{ return _errors.Count>0;  } }
+        public bool HasErrors    { get { return _errors.Count > 0;  } }
         /// <inheritdoc />
-        public IReadOnlyList<InjectionError> Errors { get{ return _errors; } }
+        public IReadOnlyList<InjectionError> Errors { get { return _errors; } }
         private Dictionary<Type, IInjectionBinding> _bindings;
         private Dictionary<Type, IInstanceProvider> _providers;
         private Dictionary<Type, ReflectionCache>   _reflections;
@@ -36,7 +36,7 @@ namespace Com.Bit34Games.Injector
         private string[]                            _errorMessages;
         private bool                                _isBindingCompleted;
 
-        //	CONSTRUCTORS
+        //  CONSTRUCTORS
 
         /// <summary>
         /// Create a new injector context.
@@ -51,7 +51,7 @@ namespace Com.Bit34Games.Injector
         /// must check <see cref="HasErrors"/> after the bind phase to see what went wrong.
         /// See README "Creating Injector" for the full contract.</para>
         /// </param>
-        public InjectorContext(bool shouldThrowException=false)
+        public InjectorContext(bool shouldThrowException = false)
         {
             _bindings             = new Dictionary<Type, IInjectionBinding>();
             _providers            = new Dictionary<Type, IInstanceProvider>();
@@ -80,12 +80,12 @@ namespace Com.Bit34Games.Injector
 
             //  Bind phase has ended — record error and return a no-op setter so
             //  fluent chaining stays safe in non-throwing mode.
-            if(_isBindingCompleted)
+            if (_isBindingCompleted)
             {
                 InjectionError error = CreateError(InjectionErrorType.BindingAfterInjection, bindingType, null, "", 1);
-                if(_shouldThrowException)
+                if (_shouldThrowException)
                 {
-                    throw new InjectionException(error.error, error.message);
+                    throw new InjectionException(error.Error, error.Message);
                 }
                 return new NoOpBinding<T>();
             }
@@ -93,12 +93,12 @@ namespace Com.Bit34Games.Injector
             //  Duplicate binding for type — record error and return a no-op
             //  setter so chained .ToValue/.ToType calls don't reconfigure the
             //  existing binding by accident.
-            if(_bindings.ContainsKey(bindingType))
+            if (_bindings.ContainsKey(bindingType))
             {
                 InjectionError error = CreateError(InjectionErrorType.AlreadyAddedBindingForType, bindingType, null, "", 1);
-                if(_shouldThrowException)
+                if (_shouldThrowException)
                 {
-                    throw new InjectionException(error.error, error.message);
+                    throw new InjectionException(error.Error, error.Message);
                 }
                 return new NoOpBinding<T>();
             }
@@ -110,16 +110,10 @@ namespace Com.Bit34Games.Injector
         }
 
         /// <inheritdoc />
-        public bool HasBindingForType(Type type)
-        {
-            return _bindings.ContainsKey(type);
-        }
-
-        /// <inheritdoc />
         public void InjectInto(object container, IMemberInjector injectionOverride = null)
         {
             _isBindingCompleted = true;
-            
+
             //  Get reflection container for object. Will be performed once per type
             ReflectionCache classReflection = GetReflection(container.GetType());
 
@@ -127,14 +121,14 @@ namespace Com.Bit34Games.Injector
             foreach (FieldInfo fieldInfo in classReflection.Fields)
             {
                 //  handle injection overriding, if any
-                if(injectionOverride!=null && injectionOverride.TryInjectIntoField(fieldInfo, container)) { continue; }
+                if (injectionOverride != null && injectionOverride.TryInjectIntoField(fieldInfo, container)) { continue; }
 
                 //  Get binding for field type
                 IInjectionBinding binding;
-                if(GetBinding(fieldInfo.FieldType, out binding)==false) { continue; }
+                if (!GetBinding(fieldInfo.FieldType, out binding)) { continue; }
 
                 //  Check restrictions
-                if(CheckRestrictions(container, binding)==false) { continue; }
+                if (!CheckRestrictions(container, binding)) { continue; }
 
                 //  Inject value
                 object value = GetInstanceAndInit(binding.InstanceProvider);
@@ -145,14 +139,14 @@ namespace Com.Bit34Games.Injector
             foreach (PropertyInfo propertyInfo in classReflection.Properties)
             {
                 //  handle injection overriding, if any
-                if(injectionOverride!=null && injectionOverride.TryInjectIntoProperty(propertyInfo, container)) { continue; }
+                if (injectionOverride != null && injectionOverride.TryInjectIntoProperty(propertyInfo, container)) { continue; }
 
                 //  Get binding for field type
                 IInjectionBinding binding;
-                if(GetBinding(propertyInfo.PropertyType, out binding)==false) { continue; }
+                if (!GetBinding(propertyInfo.PropertyType, out binding)) { continue; }
 
                 //  Check restrictions
-                if(CheckRestrictions(container, binding)==false) { continue; }
+                if (!CheckRestrictions(container, binding)) { continue; }
 
                 //  Inject value
                 object value = GetInstanceAndInit(binding.InstanceProvider);
@@ -169,7 +163,7 @@ namespace Com.Bit34Games.Injector
 
             object value = null;
             IInjectionBinding binding = null;
-            if (_bindings.TryGetValue(bindingType, out binding) == true)
+            if (_bindings.TryGetValue(bindingType, out binding))
             {
                 value = GetInstanceAndInit(binding.InstanceProvider);
             }
@@ -177,9 +171,9 @@ namespace Com.Bit34Games.Injector
             {
                 //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, bindingType, null, "", 1);
-                if(_shouldThrowException)
+                if (_shouldThrowException)
                 {
-                    throw new InjectionException(error.error,error.message);
+                    throw new InjectionException(error.Error, error.Message);
                 }
             }
 
@@ -195,14 +189,14 @@ namespace Com.Bit34Games.Injector
 
             HashSet<T> assignableInstances;
             object instances;
-            if(!_assignableInstances.TryGetValue(typeToAssign, out instances))
+            if (!_assignableInstances.TryGetValue(typeToAssign, out instances))
             {
                 assignableInstances = new HashSet<T>();
                 _assignableInstances.Add(typeToAssign, assignableInstances);
 
-                foreach(IInstanceProvider provider in _providers.Values)
+                foreach (IInstanceProvider provider in _providers.Values)
                 {
-                    if(typeToAssign.IsAssignableFrom(provider.InstanceType))
+                    if (typeToAssign.IsAssignableFrom(provider.InstanceType))
                     {
                         object value = null;
                         bool isNew;
@@ -227,6 +221,16 @@ namespace Com.Bit34Games.Injector
 
 #endregion
 
+#region IInjectorTester implementations
+
+        /// <inheritdoc />
+        public bool HasBindingForType(Type type)
+        {
+            return _bindings.ContainsKey(type);
+        }
+
+#endregion
+
 #region IInstanceProviderList implementations
 
         IInstanceProvider IInstanceProviderList.AddValueProvider(Type bindingType, object value)
@@ -238,9 +242,9 @@ namespace Com.Bit34Games.Injector
             {
                 //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.ValueNotAssignableToBindingType, bindingType, providerType, "", 2);
-                if(_shouldThrowException)
+                if (_shouldThrowException)
                 {
-                    throw new InjectionException(error.error,error.message);
+                    throw new InjectionException(error.Error, error.Message);
                 }
 
                 return null;
@@ -248,23 +252,23 @@ namespace Com.Bit34Games.Injector
 
             //  Check if a provider with given type exist
             IInstanceProvider provider;
-            if(_providers.TryGetValue(providerType, out provider))
+            if (_providers.TryGetValue(providerType, out provider))
             {
                 //  Check if existing provider is same with requested one
-                if(provider.GetType()!=typeof(SingleInstanceProvider))
+                if (provider.GetType() != typeof(SingleInstanceProvider))
                 {
                     //  Handle error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedTypeWithDifferentProvider, bindingType, providerType, "", 2);
-                    if(_shouldThrowException)
+                    if (_shouldThrowException)
                     {
-                        throw new InjectionException(error.error,error.message);
+                        throw new InjectionException(error.Error, error.Message);
                     }
                 }
             }
             else
             {
                 provider = new SingleInstanceProvider(value);
-                _providers.Add(providerType,provider);
+                _providers.Add(providerType, provider);
             }
 
             return provider;
@@ -281,33 +285,33 @@ namespace Com.Bit34Games.Injector
             {
                 //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.TypeNotAssignableToTarget, bindingType, providerType, "", 2);
-                if(_shouldThrowException)
+                if (_shouldThrowException)
                 {
-                    throw new InjectionException(error.error,error.message);
+                    throw new InjectionException(error.Error, error.Message);
                 }
 
                 return null;
             }
-            
+
             //  Check if a provider with given type exist
             IInstanceProvider provider;
-            if(_providers.TryGetValue(providerType, out provider))
+            if (_providers.TryGetValue(providerType, out provider))
             {
                 //  Check if existing provider is same with requested one
-                if(provider.GetType()!=typeof(NewInstanceProvider<T>))
+                if (provider.GetType() != typeof(NewInstanceProvider<T>))
                 {
                     //  Handle error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedTypeWithDifferentProvider, bindingType, providerType, "", 2);
-                    if(_shouldThrowException)
+                    if (_shouldThrowException)
                     {
-                        throw new InjectionException(error.error,error.message);
+                        throw new InjectionException(error.Error, error.Message);
                     }
                 }
             }
             else
             {
                 provider = new NewInstanceProvider<T>();
-                _providers.Add(providerType,provider);
+                _providers.Add(providerType, provider);
             }
 
             return provider;
@@ -329,13 +333,13 @@ namespace Com.Bit34Games.Injector
 
         private bool GetBinding(Type bindingType, out IInjectionBinding binding)
         {
-            if (_bindings.TryGetValue(bindingType, out binding) == false)
+            if (!_bindings.TryGetValue(bindingType, out binding))
             {
                 //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, bindingType, null, "", 2);
-                if(_shouldThrowException)
+                if (_shouldThrowException)
                 {
-                    throw new InjectionException(error.error, error.message);
+                    throw new InjectionException(error.Error, error.Message);
                 }
                 return false;
             }
@@ -349,13 +353,13 @@ namespace Com.Bit34Games.Injector
             {
                 IInjectionRestriction restriction = restrictions[i];
                 bool restrictionResult = restrictions[i].Check(container, binding.BindingType, binding.InstanceProvider);
-                if (restrictionResult==false)
+                if (!restrictionResult)
                 {
                     //  Handle error
                     InjectionError error = CreateError(InjectionErrorType.InjectionRestricted, binding.BindingType, null, restriction.GetInfo(), 2);
-                    if(_shouldThrowException)
+                    if (_shouldThrowException)
                     {
-                        throw new InjectionException(error.error, error.message);
+                        throw new InjectionException(error.Error, error.Message);
                     }
                     return false;
                 }
@@ -367,7 +371,7 @@ namespace Com.Bit34Games.Injector
         {
             ReflectionCache reflection = null;
 
-            if (_reflections.TryGetValue(type, out reflection) == false)
+            if (!_reflections.TryGetValue(type, out reflection))
             {
                 reflection = new ReflectionCache(type);
 
@@ -377,21 +381,21 @@ namespace Com.Bit34Games.Injector
             return reflection;
         }
 
-        private InjectionError CreateError(InjectionErrorType errorType, Type bindingType=null, Type providerType=null, string extraInfo="", int callerLevel=0)
+        private InjectionError CreateError(InjectionErrorType errorType, Type bindingType = null, Type providerType = null, string extraInfo="", int callerLevel=0)
         {
             string callerInfo = GetCallerInfo(1+callerLevel);
-            string bindingTypeAsString = (bindingType!=null)?(bindingType.ToString()):("");
-            string providerTypeAsString = (providerType!=null)?(providerType.ToString()):("");
+            string bindingTypeAsString = (bindingType != null)?(bindingType.ToString()):("");
+            string providerTypeAsString = (providerType != null)?(providerType.ToString()):("");
             object[] args = new object[]
             {
-                callerInfo, 
-                bindingTypeAsString, 
+                callerInfo,
+                bindingTypeAsString,
                 providerTypeAsString,
                 extraInfo
             };
             string errorMessage = String.Format(_errorMessages[(int)errorType], args);
 
-            InjectionError error = new InjectionError(errorType,errorMessage);
+            InjectionError error = new InjectionError(errorType, errorMessage);
             _errors.Add(error);
 
             return error;

@@ -20,7 +20,7 @@ namespace Com.Bit34Games.Injector.Provider
         /// <inheritdoc />
         public override void GetInstance(out object value, out bool isNew)
         {
-            if(_instance==null)
+            if (_instance == null)
             {
                 _instance = new T();
                 isNew = true;

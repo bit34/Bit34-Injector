@@ -8,7 +8,7 @@
     <Authors>Oguz Sandikci</Authors>
     <Company>Bit34 Games</Company>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <!-- Emit Bit34-Injector.xml alongside the assembly so consumers see
          the public API documentation in IntelliSense. -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\"/>
-    <None Include="LICENSE.txt" Pack="true" PackagePath="\"/>
+    <None Include="LICENSE.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
