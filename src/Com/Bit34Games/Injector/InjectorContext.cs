@@ -9,12 +9,23 @@ using Com.Bit34Games.Injector.Reflection;
 
 namespace Com.Bit34Games.Injector
 {
+    /// <summary>
+    /// The default <see cref="IInjector"/> implementation. Holds bindings and producers,
+    /// performs the reflection-based injection, and (depending on
+    /// <c>shouldThrowException</c>) either throws on errors or records them for later
+    /// inspection through <see cref="IInjectorTester"/>.
+    /// </summary>
     public class InjectorContext : IInjector, IInjectorTester, IInstanceProviderList
     {
         //  MEMBERS
+
+        /// <inheritdoc />
         public int BindingCount  { get{ return _bindings.Count;  } }
+        /// <inheritdoc />
         public int ProviderCount { get{ return _providers.Count; } }
+        /// <inheritdoc />
         public int ErrorCount    { get{ return _errors.Count;    } }
+        /// <inheritdoc />
         public bool HasErrors    { get{ return _errors.Count>0;  } }
         private Dictionary<Type, IInjectionBinding> _bindings;
         private Dictionary<Type, IInstanceProvider> _providers;
@@ -26,6 +37,20 @@ namespace Com.Bit34Games.Injector
         private bool                                _isBindingCompleted;
 
         //	CONSTRUCTORS
+
+        /// <summary>
+        /// Create a new injector context.
+        /// </summary>
+        /// <param name="shouldThrowException">
+        /// <para>When <c>true</c> (recommended for almost all use cases, including production),
+        /// the injector throws an <see cref="InjectionException"/> immediately when an error
+        /// occurs.</para>
+        /// <para>When <c>false</c>, errors are recorded into an internal list — intended for
+        /// development and tests only. In this mode <see cref="AddBinding{T}"/> returns a no-op
+        /// setter on error and <see cref="GetInstance{T}"/> returns <c>default(T)</c>; callers
+        /// must check <see cref="HasErrors"/> after the bind phase to see what went wrong.
+        /// See README "Creating Injector" for the full contract.</para>
+        /// </param>
         public InjectorContext(bool shouldThrowException=false)
         {
             _bindings             = new Dictionary<Type, IInjectionBinding>();
@@ -37,7 +62,7 @@ namespace Com.Bit34Games.Injector
             _errors        = new List<InjectionError>();
             _errorMessages = new string[Enum.GetValues(typeof(InjectionErrorType)).Length];
             _errorMessages[(int)InjectionErrorType.AlreadyAddedBindingForType           ] = "Injection Error:Already added binding for type [{1}]\n{0}";
-            _errorMessages[(int)InjectionErrorType.AlreadyAddedTypeWithDifferentProvider] = "Injection Error:Requested provider with type [{2}] already added with a different provider\n[{0}]]";
+            _errorMessages[(int)InjectionErrorType.AlreadyAddedTypeWithDifferentProvider] = "Injection Error:Requested provider with type [{2}] already added with a different provider\n[{0}]";
             _errorMessages[(int)InjectionErrorType.TypeNotAssignableToTarget            ] = "Injection Error:Given type [{2}] is not assignable to binding type [{1}]\n{0}";
             _errorMessages[(int)InjectionErrorType.ValueNotAssignableToBindingType      ] = "Injection Error:Given value of type [{2}] is not assignable to binding type [{1}]\n{0}";
             _errorMessages[(int)InjectionErrorType.CanNotFindBindingForType             ] = "Injection Error:Can not find binding for type [{1}]\n{0}";
@@ -48,53 +73,55 @@ namespace Com.Bit34Games.Injector
         //  METHODS
 #region IInjector implementations
 
+        /// <inheritdoc />
         public IInstanceProviderSetter<T> AddBinding<T>()
         {
             Type bindingType = typeof(T);
-            IInjectionBinding binding = null;
 
-            if(!_isBindingCompleted)
+            //  Bind phase has ended — record error and return a no-op setter so
+            //  fluent chaining stays safe in non-throwing mode.
+            if(_isBindingCompleted)
             {
-                //  Check is there is an existing binding with given type
-                if(_bindings.TryGetValue(bindingType,out binding))
-                {
-                    //  Handler error
-                    InjectionError error = CreateError(InjectionErrorType.AlreadyAddedBindingForType, bindingType, null, "", 1);
-                    if(_shouldThrowException)
-                    {
-                        throw new InjectionException(error.error,error.message);
-                    }
-                }
-                else
-                {
-                    //  Add binding
-                    binding = new InjectionBinding<T>(this);
-                    _bindings.Add(bindingType, binding);
-                }
-            }
-            else
-            {
-                //  Handler error
                 InjectionError error = CreateError(InjectionErrorType.BindingAfterInjection, bindingType, null, "", 1);
                 if(_shouldThrowException)
                 {
-                    throw new InjectionException(error.error,error.message);
+                    throw new InjectionException(error.error, error.message);
                 }
+                return new NoOpBinding<T>();
             }
 
-            return (InjectionBinding<T>)binding;
+            //  Duplicate binding for type — record error and return a no-op
+            //  setter so chained .ToValue/.ToType calls don't reconfigure the
+            //  existing binding by accident.
+            if(_bindings.ContainsKey(bindingType))
+            {
+                InjectionError error = CreateError(InjectionErrorType.AlreadyAddedBindingForType, bindingType, null, "", 1);
+                if(_shouldThrowException)
+                {
+                    throw new InjectionException(error.error, error.message);
+                }
+                return new NoOpBinding<T>();
+            }
+
+            //  Add binding (happy path)
+            InjectionBinding<T> binding = new InjectionBinding<T>(this);
+            _bindings.Add(bindingType, binding);
+            return binding;
         }
 
+        /// <inheritdoc />
         public bool HasBindingForType(Type type)
         {
             return _bindings.ContainsKey(type);
         }
 
+        /// <inheritdoc />
         public InjectionError GetError(int index)
         {
             return _errors[index];
         }
 
+        /// <inheritdoc />
         public void InjectInto(object container, IMemberInjector injectionOverride = null)
         {
             _isBindingCompleted = true;
@@ -139,6 +166,7 @@ namespace Com.Bit34Games.Injector
             }
         }
 
+        /// <inheritdoc />
         public T GetInstance<T>()
         {
             _isBindingCompleted = true;
@@ -153,7 +181,7 @@ namespace Com.Bit34Games.Injector
             }
             else
             {
-                //  Handler error
+                //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, bindingType, null, "", 1);
                 if(_shouldThrowException)
                 {
@@ -164,6 +192,7 @@ namespace Com.Bit34Games.Injector
             return (T)value;
         }
 
+        /// <inheritdoc />
         public IEnumerator<T> GetAssignableInstances<T>()
         {
             _isBindingCompleted = true;
@@ -204,14 +233,14 @@ namespace Com.Bit34Games.Injector
 
 #region IInstanceProviderList implementations
 
-        public IInstanceProvider AddValueProvider(Type bindingType, object value)
+        IInstanceProvider IInstanceProviderList.AddValueProvider(Type bindingType, object value)
         {
             Type providerType = value.GetType();
 
             //  Check if type of value is assignable to target type
             if (!bindingType.IsAssignableFrom(providerType))
             {
-                //  Handler error
+                //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.ValueNotAssignableToBindingType, bindingType, providerType, "", 2);
                 if(_shouldThrowException)
                 {
@@ -228,7 +257,7 @@ namespace Com.Bit34Games.Injector
                 //  Check if existing provider is same with requested one
                 if(provider.GetType()!=typeof(SingleInstanceProvider))
                 {
-                    //  Handler error
+                    //  Handle error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedTypeWithDifferentProvider, bindingType, providerType, "", 2);
                     if(_shouldThrowException)
                     {
@@ -245,14 +274,16 @@ namespace Com.Bit34Games.Injector
             return provider;
         }
 
-        public IInstanceProvider AddTypedProvider<T>(Type bindingType) where T : new()
+        //  Constraint `where T : new()` is inherited from the interface declaration
+        //  and must not be repeated on an explicit interface implementation.
+        IInstanceProvider IInstanceProviderList.AddTypedProvider<T>(Type bindingType)
         {
             Type providerType = typeof(T);
 
             //  Check if type T is assignable to target type
             if (!bindingType.IsAssignableFrom(providerType))
             {
-                //  Handler error
+                //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.TypeNotAssignableToTarget, bindingType, providerType, "", 2);
                 if(_shouldThrowException)
                 {
@@ -269,7 +300,7 @@ namespace Com.Bit34Games.Injector
                 //  Check if existing provider is same with requested one
                 if(provider.GetType()!=typeof(NewInstanceProvider<T>))
                 {
-                    //  Handler error
+                    //  Handle error
                     InjectionError error = CreateError(InjectionErrorType.AlreadyAddedTypeWithDifferentProvider, bindingType, providerType, "", 2);
                     if(_shouldThrowException)
                     {
@@ -304,7 +335,7 @@ namespace Com.Bit34Games.Injector
         {
             if (_bindings.TryGetValue(bindingType, out binding) == false)
             {
-                //  Handler error
+                //  Handle error
                 InjectionError error = CreateError(InjectionErrorType.CanNotFindBindingForType, bindingType, null, "", 2);
                 if(_shouldThrowException)
                 {
@@ -317,14 +348,14 @@ namespace Com.Bit34Games.Injector
 
         private bool CheckRestrictions(object container, IInjectionBinding binding)
         {
-            List<IInjectionRestriction> restrictions = binding.RestrictionList;
+            IReadOnlyList<IInjectionRestriction> restrictions = binding.RestrictionList;
             for (int i = 0; i < restrictions.Count; i++)
             {
                 IInjectionRestriction restriction = restrictions[i];
                 bool restrictionResult = restrictions[i].Check(container, binding.BindingType, binding.InstanceProvider);
                 if (restrictionResult==false)
                 {
-                    //  Handler error
+                    //  Handle error
                     InjectionError error = CreateError(InjectionErrorType.InjectionRestricted, binding.BindingType, null, restriction.GetInfo(), 2);
                     if(_shouldThrowException)
                     {

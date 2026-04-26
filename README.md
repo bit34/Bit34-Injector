@@ -53,7 +53,7 @@ class Program
     static void Main(string[] args)
     {
         //  Create injector
-        IInjector InjectorContext = new InjectorContext(true);
+        IInjector injector = new InjectorContext(true);
 
         //  Add bindings
         UserData myUser = new UserData();
@@ -82,9 +82,20 @@ class Program
 
 Constructor parameter ```shouldThrowException``` allows you to choose error handling behavior.
 
-When set to ```true```, ```InjectorContext``` throws an exception when an error occurs. This should be your default choice for development cause it will let you find errors sooner.
+When set to ```true``` (recommended for almost all use cases, including production), ```InjectorContext``` throws an ```InjectionException``` immediately when an error occurs. Errors fail loudly at the call site so they are easy to find and fix.
 
-When set to ```false```, ```InjectorContext``` internally stores error messages for later examinations. This behavior is added for development purposes. Even though it is not advised, you can use this option on production to manually catch unexpected errors.
+When set to ```false```, ```InjectorContext``` records errors into an internal list instead of throwing. **This mode is for development and tests only.** Its purpose is to let you:
+
+- collect every binding mistake in one pass during development, instead of fix-one-rerun-fix-one cycles, and
+- assert on structured ```InjectionErrorType``` values from the test suite without wrapping every call in ```try/catch```.
+
+In non-throwing mode the API contract is:
+
+- ```AddBinding<T>()``` returns a no-op setter on error. Chained ```.ToValue(...)```, ```.ToType<...>()```, and ```.RestrictToNamespace(...)``` calls are safe but do nothing.
+- ```GetInstance<T>()``` returns ```default(T)``` (i.e. ```null``` for reference types) on error. Callers must check ```HasErrors``` before using the result.
+- After your bind phase, check ```HasErrors``` and inspect ```ErrorCount``` / ```GetError(i)``` to see what went wrong.
+
+Do not ship non-throwing mode to production unless you have a wrapper that checks ```HasErrors``` between operations.
 
 ---
 ### **Adding Bindings**
@@ -181,7 +192,7 @@ injector.GetInstance<ISaveManager>().LoadSaves();
 ```
 IEnumerator<IManager> managers = injector.GetAssignableInstances<IManager>();
 
-while(manager.MoveNext())
+while(managers.MoveNext())
 {
     managers.Current.Initialize();
 }

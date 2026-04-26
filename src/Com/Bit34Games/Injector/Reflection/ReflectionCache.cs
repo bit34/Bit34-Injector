@@ -5,15 +5,25 @@ using System.Collections.Generic;
 
 namespace Com.Bit34Games.Injector.Reflection
 {
+    /// <summary>
+    /// Per-type cache of <c>[Inject]</c>-tagged fields and writable properties (including
+    /// inherited members). Built once per target type during <see cref="IInjector.InjectInto"/>
+    /// and reused on subsequent calls for the same type.
+    /// </summary>
     public class ReflectionCache
     {
 		//	MEMBERS
+		/// <summary>The type this cache was built for.</summary>
 		public readonly Type            reflectedType;
+		/// <summary>All <c>[Inject]</c>-tagged fields, including inherited ones.</summary>
 		public LinkedList<FieldInfo>    Fields     { get; private set; }
+		/// <summary>All <c>[Inject]</c>-tagged writable properties, including inherited ones.</summary>
 		public LinkedList<PropertyInfo> Properties { get; private set; }
 
 
         //	CONSTRUCTOR
+        /// <summary>Walk <paramref name="reflectedType"/> and its base chain, collecting
+        /// <c>[Inject]</c>-tagged fields and writable properties.</summary>
         public ReflectionCache(Type reflectedType)
 		{
             this.reflectedType = reflectedType;
@@ -63,9 +73,12 @@ namespace Com.Bit34Games.Injector.Reflection
                 object[] attributeList = propertyInfo.GetCustomAttributes(typeof(InjectAttribute), true);
                 if (attributeList.Length > 0)
                 {
-                    if(!Properties.Contains((PropertyInfo)propertyInfo))
+                    PropertyInfo property = (PropertyInfo)propertyInfo;
+                    //  Skip get-only properties — SetValue would throw at injection time.
+                    //  CanWrite covers private setters too (we look them up via NonPublic).
+                    if(property.CanWrite && !Properties.Contains(property))
                     {
-                        Properties.AddLast((PropertyInfo)propertyInfo);
+                        Properties.AddLast(property);
                     }
                 }
             }

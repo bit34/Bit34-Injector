@@ -4,21 +4,27 @@ using Com.Bit34Games.Injector.Provider;
 
 namespace Com.Bit34Games.Injector.Binding
 {
-    public class InjectionBinding<TBinding> : IInjectionBinding, IInstanceProviderSetter<TBinding>
+    //  Implementation detail — consumers receive these through IInstanceProviderSetter<T>
+    //  (return type of IInjector.AddBinding<T>) and IInjectionBinding (used internally
+    //  by the injection pipeline). Not meant to be constructed directly.
+    internal class InjectionBinding<TBinding> : IInjectionBinding, IInstanceProviderSetter<TBinding>
     {
         //	MEMBERS
-        public Type                        BindingType      { get; private set; }
-        public IInstanceProvider           InstanceProvider { get; private set; }
-        public List<IInjectionRestriction> RestrictionList  { get; private set; }
-        private IInstanceProviderList      _instanceProviderList;
-    
+        public Type              BindingType      { get; private set; }
+        public IInstanceProvider InstanceProvider { get; private set; }
+        //  Public surface is the read-only view; the concrete List<> is kept
+        //  private so callers can't mutate the restriction set from the outside.
+        public IReadOnlyList<IInjectionRestriction> RestrictionList { get { return _restrictionList; } }
+        private List<IInjectionRestriction>         _restrictionList;
+        private IInstanceProviderList               _instanceProviderList;
+
 
         //	CONSTRUCTOR
         public InjectionBinding(IInstanceProviderList instanceProviderList)
         {
-            BindingType = typeof(TBinding);
+            BindingType           = typeof(TBinding);
             _instanceProviderList = instanceProviderList;
-            RestrictionList = new List<IInjectionRestriction>();
+            _restrictionList      = new List<IInjectionRestriction>();
         }
 
         //  METHODS
@@ -37,13 +43,13 @@ namespace Com.Bit34Games.Injector.Binding
 
         public IInjectionBindingOptions RestrictToNamespace(string namespaceName)
         {
-            RestrictionList.Add(new NamespaceRestriction(namespaceName));
+            _restrictionList.Add(new NamespaceRestriction(namespaceName));
             return this;
         }
 
         public IInjectionBindingOptions RestrictToNamespace(params string[] namespaceNameList)
         {
-            RestrictionList.Add(new NamespaceRestriction(namespaceNameList));
+            _restrictionList.Add(new NamespaceRestriction(namespaceNameList));
             return this;
         }
     }
