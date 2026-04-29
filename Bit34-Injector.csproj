@@ -7,7 +7,7 @@
     <RootNamespace>Com.Bit34Games.Injector</RootNamespace>
 
     <PackageId>Com.Bit34Games.Injector</PackageId>
-    <Version>2.0.0</Version>
+    <Version>3.0.0</Version>
     <Authors>Oguz Sandikci</Authors>
     <Company>Bit34 Games</Company>
     <Description>Small singleton-only C# dependency injection (DI) library, primarily intended for use alongside other Bit34 Games libraries in Unity projects.</Description>
