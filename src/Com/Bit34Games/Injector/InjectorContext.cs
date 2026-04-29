@@ -19,6 +19,7 @@ namespace Com.Bit34Games.Injector
     {
         //  MEMBERS
 
+        //  Public diagnostic surface (IInjectorTester)
         /// <inheritdoc />
         public int BindingCount  { get { return _bindings.Count;  } }
         /// <inheritdoc />
@@ -27,6 +28,8 @@ namespace Com.Bit34Games.Injector
         public bool HasErrors    { get { return _errors.Count > 0;  } }
         /// <inheritdoc />
         public IReadOnlyList<InjectionError> Errors { get { return _errors; } }
+
+        //  Private state
         private Dictionary<Type, IInjectionBinding> _bindings;
         private Dictionary<Type, IInstanceProvider> _providers;
         private Dictionary<Type, ReflectionCache>   _reflections;

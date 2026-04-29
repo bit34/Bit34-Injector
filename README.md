@@ -76,6 +76,7 @@ class Program
 
 - Only singleton bindings; every binded type will share same instance.
 - Bind first, use later; after making first injection you can not make any more bindings and it will cause an error.
+- Single-threaded; the library is not thread-safe — all bind and inject calls must come from one thread.
 
 ---
 ### **Creating Injector**

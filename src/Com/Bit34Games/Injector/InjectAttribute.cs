@@ -12,7 +12,7 @@ using System;
 /// <para>Public, internal, and private members are all supported. Properties must have a
 /// (possibly private) setter; getter-only properties are silently skipped at cache build time.</para>
 /// </remarks>
-[AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
 public class InjectAttribute : Attribute
 {
     //  CONSTRUCTOR

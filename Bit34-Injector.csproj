@@ -2,11 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
     <RootNamespace>Com.Bit34Games.Injector</RootNamespace>
+
     <PackageId>Com.Bit34Games.Injector</PackageId>
     <Version>2.0.0</Version>
     <Authors>Oguz Sandikci</Authors>
     <Company>Bit34 Games</Company>
+    <Description>Small singleton-only C# dependency injection (DI) library, primarily intended for use alongside other Bit34 Games libraries in Unity projects.</Description>
+    <PackageTags>dependency-injection;di;ioc;unity;singleton;bit34</PackageTags>
+    <PackageProjectUrl>https://github.com/bit34/Bit34-Injector</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bit34/Bit34-Injector</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <!-- Emit Bit34-Injector.xml alongside the assembly so consumers see
