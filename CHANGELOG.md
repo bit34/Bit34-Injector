@@ -46,7 +46,8 @@
  - Changelog added (This file)
 
 ### Changed
- - Repository name chaned to ```Bit34-Injector```
+ - Repository name changed to ```Bit34-Injector```
  - Namespace changed to ```Com.Bit34Games.Injector```
  - ```Injector``` class renamed to ```InjectorContext```
  - ```IInjectorTester``` interface does not extend ```IInjector``` interface anymore, they are individually implemented
+ - DLL file name changed to ```Bit34-Injector-Unity.dll```
