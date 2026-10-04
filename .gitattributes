@@ -1,0 +1,26 @@
+# ============================================================================
+# Bit34-Injector — line ending policy
+#
+# Everything git detects as text is stored and checked out as LF, whatever
+# each machine's core.autocrlf happens to be set to. Without this, a checkout
+# on a machine configured for CRLF rewrites every file, and the next commit
+# from it shows unrelated files as wholly modified.
+#
+# This repo is a plain .NET project: all of its tracked content is source.
+# The binary types below are the ones a .NET build drops in if a build output
+# ever stops being gitignored.
+# ============================================================================
+
+* text=auto eol=lf
+
+
+# ---- Binary: never touch the bytes ----------------------------------------
+*.dll    binary
+*.pdb    binary
+*.exe    binary
+*.so     binary
+*.dylib  binary
+*.a      binary
+*.nupkg  binary
+*.snk    binary
+*.zip    binary
